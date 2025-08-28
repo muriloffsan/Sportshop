@@ -1,13 +1,18 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image, Alert } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image, Alert, Linking } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
 export default function SignUpScreen({ navigation }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [checked, setChecked] = useState(false); // checkbox funcional
 
   const handleSignUp = () => {
+    if (!checked) {
+      Alert.alert('Erro', 'Você precisa aceitar os Termos de Uso e Política de Privacidade.');
+      return;
+    }
     if (!email || !password || !confirmPassword) {
       Alert.alert('Erro', 'Preencha todos os campos!');
       return;
@@ -18,6 +23,10 @@ export default function SignUpScreen({ navigation }) {
     }
     Alert.alert('Sucesso', 'Cadastro realizado com sucesso!');
     navigation.navigate('Login');
+  };
+
+  const handleTermsPress = () => {
+    Linking.openURL('https://www.exemplo.com/termos'); // link dos termos
   };
 
   return (
@@ -55,13 +64,13 @@ export default function SignUpScreen({ navigation }) {
         style={styles.input}
       />
 
-      {/* Termos */}
-      <View style={styles.checkboxRow}>
-        <Ionicons name="checkbox" size={20} color="#20c997" />
-        <Text style={styles.terms}>
+      {/* Termos funcional */}
+      <TouchableOpacity style={styles.checkboxRow} onPress={() => setChecked(!checked)}>
+        <Ionicons name={checked ? "checkbox" : "square-outline"} size={20} color="#20c997" />
+        <Text style={styles.terms} onPress={handleTermsPress}>
           By continuing, you agree to the Terms of Use and Privacy Policy
         </Text>
-      </View>
+      </TouchableOpacity>
 
       {/* Botão Cadastro */}
       <TouchableOpacity style={styles.btn} onPress={handleSignUp}>
@@ -88,45 +97,13 @@ export default function SignUpScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#111',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 20,
-  },
-  logo: { 
-    width: 220, 
-    height: 220, 
-    marginBottom: 25, 
-    resizeMode: 'contain' 
-  },
-  subtitle: { 
-    color: '#fff', 
-    fontSize: 18, 
-    fontWeight: '600', 
-    marginBottom: 15 
-  },
-  input: {
-    width: '100%',
-    padding: 14,
-    borderWidth: 1,
-    borderColor: '#555',
-    borderRadius: 25,
-    color: '#fff',
-    marginVertical: 8,
-    backgroundColor: '#222',
-  },
+  container: { flex: 1, backgroundColor: '#111', alignItems: 'center', justifyContent: 'center', padding: 20 },
+  logo: { width: 220, height: 220, marginBottom: 25, resizeMode: 'contain' },
+  subtitle: { color: '#fff', fontSize: 18, fontWeight: '600', marginBottom: 15 },
+  input: { width: '100%', padding: 14, borderWidth: 1, borderColor: '#555', borderRadius: 25, color: '#fff', marginVertical: 8, backgroundColor: '#222' },
   checkboxRow: { flexDirection: 'row', alignItems: 'center', marginVertical: 10 },
-  terms: { color: '#aaa', fontSize: 12, flex: 1, marginLeft: 5 },
-  btn: {
-    width: '100%',
-    backgroundColor: '#20c997',
-    padding: 14,
-    borderRadius: 25,
-    alignItems: 'center',
-    marginVertical: 12,
-  },
+  terms: { color: '#aaa', fontSize: 12, flex: 1, marginLeft: 5, textDecorationLine: 'underline' },
+  btn: { width: '100%', backgroundColor: '#20c997', padding: 14, borderRadius: 25, alignItems: 'center', marginVertical: 12 },
   btnText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
   divider: { width: '100%', height: 1, backgroundColor: '#333', marginVertical: 20 },
   socialText: { color: '#aaa', marginBottom: 10 },
