@@ -38,20 +38,41 @@ export default function App() {
     <View style={{ flex: 1 }} onLayout={onLayoutRootView}>
       <NavigationContainer>
         <Stack.Navigator screenOptions={{ headerShown: false }}>
-          {/* Splash customizada como primeira tela */}
+          {/* Splash customizada */}
           <Stack.Screen name="Splash" component={CustomSplashScreen} />
-          
-          {/* Tela de Login */}
+
+          {/* Login */}
           <Stack.Screen name="Login">
-            {(props) => <LoginScreen {...props} onSignedIn={(u) => setUser(u)} />}
+            {(props) => (
+              <LoginScreen
+                navigation={props.navigation} // só navigation
+                onSignedIn={(u) => {
+                  setUser(u);
+                  props.navigation.navigate('Home'); // navigate apenas
+                }}
+              />
+            )}
           </Stack.Screen>
-          
-          {/* Tela de Cadastro */}
-          <Stack.Screen name="SignUp" component={SignUpScreen} />
-          
-          {/* Tela Home - só acessível se user estiver logado */}
+
+          {/* Cadastro */}
+          <Stack.Screen name="SignUp">
+            {(props) => (
+              <SignUpScreen navigation={props.navigation} />
+            )}
+          </Stack.Screen>
+
+          {/* Home */}
           <Stack.Screen name="Home">
-            {(props) => <HomeScreen {...props} user={user} onSignOut={() => setUser(null)} />}
+            {(props) => (
+              <HomeScreen
+                navigation={props.navigation}
+                user={user}
+                onSignOut={() => {
+                  setUser(null);
+                  props.navigation.navigate('Login'); // navigate apenas
+                }}
+              />
+            )}
           </Stack.Screen>
         </Stack.Navigator>
       </NavigationContainer>
