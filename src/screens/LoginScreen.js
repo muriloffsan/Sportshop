@@ -6,15 +6,20 @@ export default function LoginScreen({ navigation, onSignedIn }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isForgotPassword, setIsForgotPassword] = useState(false);
-  const [checked, setChecked] = useState(false); // estado do checkbox
+  const [checked, setChecked] = useState(false);
 
   const handleLogin = () => {
     if (!checked) {
       Alert.alert('Erro', 'Você precisa aceitar os Termos de Uso e Política de Privacidade.');
       return;
     }
+    
+    // Para teste: qualquer email/senha funciona
     if (email && password) {
+      // Chama a função para atualizar o estado do usuário
       onSignedIn({ email });
+      // Navega para a tela Home
+      navigation.navigate('Home');
     } else {
       Alert.alert('Erro', 'Preencha email e senha.');
     }
@@ -30,7 +35,6 @@ export default function LoginScreen({ navigation, onSignedIn }) {
   };
 
   const handleTermsPress = () => {
-    // exemplo de abrir link externo
     Linking.openURL('https://www.exemplo.com/termos'); 
   };
 
@@ -67,7 +71,6 @@ export default function LoginScreen({ navigation, onSignedIn }) {
         </TouchableOpacity>
       )}
 
-      {/* Termos funcional */}
       <TouchableOpacity style={styles.checkboxRow} onPress={() => setChecked(!checked)}>
         <Ionicons name={checked ? "checkbox" : "square-outline"} size={20} color="#20c997" />
         <Text style={styles.terms} onPress={handleTermsPress}>
@@ -109,6 +112,7 @@ export default function LoginScreen({ navigation, onSignedIn }) {
   );
 }
 
+// Os estyles permanecem os mesmos
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#111', alignItems: 'center', justifyContent: 'center', padding: 20 },
   logo: { width: 220, height: 220, marginBottom: 25, resizeMode: 'contain' },

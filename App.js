@@ -8,9 +8,8 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import LoginScreen from './src/screens/LoginScreen';
 import SignUpScreen from './src/screens/CadastroScreens';
 import HomeScreen from './src/screens/HomeScreen';
-import CustomSplashScreen from './src/screens/splashScreen'; // sua tela customizada
+import CustomSplashScreen from './src/screens/splashScreen';
 
-// Impede o splash do Expo de sumir sozinho
 ExpoSplashScreen.preventAutoHideAsync();
 
 const Stack = createNativeStackNavigator();
@@ -21,7 +20,7 @@ export default function App() {
 
   useEffect(() => {
     const prepare = async () => {
-      await new Promise(resolve => setTimeout(resolve, 1000)); // simula carregamento inicial
+      await new Promise(resolve => setTimeout(resolve, 1000));
       setAppIsReady(true);
     };
     prepare();
@@ -29,7 +28,7 @@ export default function App() {
 
   const onLayoutRootView = useCallback(async () => {
     if (appIsReady) {
-      await ExpoSplashScreen.hideAsync(); // fecha splash nativo do Expo
+      await ExpoSplashScreen.hideAsync();
     }
   }, [appIsReady]);
 
@@ -41,19 +40,19 @@ export default function App() {
         <Stack.Navigator screenOptions={{ headerShown: false }}>
           {/* Splash customizada como primeira tela */}
           <Stack.Screen name="Splash" component={CustomSplashScreen} />
-
-          {user ? (
-            <Stack.Screen name="Home">
-              {(props) => <HomeScreen {...props} user={user} onSignOut={() => setUser(null)} />}
-            </Stack.Screen>
-          ) : (
-            <>
-              <Stack.Screen name="Login">
-                {(props) => <LoginScreen {...props} onSignedIn={(u) => setUser(u)} />}
-              </Stack.Screen>
-              <Stack.Screen name="SignUp" component={SignUpScreen} />
-            </>
-          )}
+          
+          {/* Tela de Login */}
+          <Stack.Screen name="Login">
+            {(props) => <LoginScreen {...props} onSignedIn={(u) => setUser(u)} />}
+          </Stack.Screen>
+          
+          {/* Tela de Cadastro */}
+          <Stack.Screen name="SignUp" component={SignUpScreen} />
+          
+          {/* Tela Home - só acessível se user estiver logado */}
+          <Stack.Screen name="Home">
+            {(props) => <HomeScreen {...props} user={user} onSignOut={() => setUser(null)} />}
+          </Stack.Screen>
         </Stack.Navigator>
       </NavigationContainer>
     </View>
