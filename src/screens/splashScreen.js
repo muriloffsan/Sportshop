@@ -1,11 +1,34 @@
-import React, { useEffect } from 'react';
-import { View, Text, Image, StyleSheet } from 'react-native';
+import React, { useEffect, useRef } from 'react';
+import { View, Text, Image, StyleSheet, Animated } from 'react-native';
 
 export default function SplashScreen({ navigation }) {
+  const fadeAnim = useRef(new Animated.Value(0)).current; // opacidade
+  const scaleAnim = useRef(new Animated.Value(0.5)).current; // escala inicial menor
+
   useEffect(() => {
+    // animação de fade-in e crescimento
+    Animated.parallel([
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 1200,
+        useNativeDriver: true,
+      }),
+      Animated.sequence([
+        Animated.timing(scaleAnim, {
+          toValue: 1.2, // cresce
+          duration: 800,
+          useNativeDriver: true,
+        }),
+        Animated.timing(scaleAnim, {
+          toValue: 1, // volta ao tamanho original
+          duration: 400,
+          useNativeDriver: true,
+        }),
+      ]),
+    ]).start();
+
     const timer = setTimeout(() => {
-      // Depois de 2 segundos vai para Login
-      navigation.replace('Login');
+      navigation.replace('Login'); // navega depois de 2s
     }, 2000);
 
     return () => clearTimeout(timer);
@@ -13,14 +36,35 @@ export default function SplashScreen({ navigation }) {
 
   return (
     <View style={styles.container}>
-      <Image source={require('../../assets/icon.png')} style={styles.logo} />
-      <Text style={styles.text}>Conectando Ideias</Text>
+      <Animated.View
+        style={{
+          opacity: fadeAnim,
+          transform: [{ scale: scaleAnim }],
+          alignItems: 'center',
+        }}
+      >
+        <Image source={require('../../assets/TASK.png')} style={styles.logo} />
+      </Animated.View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: '#ffffff' },
-  logo: { width: 120, height: 120, marginBottom: 20 },
-  text: { fontSize: 22, fontWeight: 'bold', color: '#333' }
+  container: { 
+    flex: 1, 
+    alignItems: 'center', 
+    justifyContent: 'center', 
+    backgroundColor: '#20c997' 
+  },
+  logo: { 
+    width: 250,
+    height: 250, 
+    marginBottom: 20, 
+    resizeMode: 'contain' 
+  },
+  text: { 
+    fontSize: 22, 
+    fontWeight: 'bold', 
+    color: '#20c997' 
+  }
 });

@@ -2,16 +2,16 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
-export default function LoginScreen({ navigation, onSignedIn }) {
+export default function ForgotPasswordScreen({ navigation }) {
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
 
-  const handleLogin = () => {
-    if (email && password) {
-      onSignedIn({ email }); // simula login
-    } else {
-      Alert.alert('Erro', 'Preencha email e senha.');
+  const handleResetPassword = () => {
+    if (!email) {
+      Alert.alert('Erro', 'Preencha o campo de email!');
+      return;
     }
+    Alert.alert('Sucesso', `Um link de redefinição foi enviado para ${email}`);
+    navigation.navigate('Login');
   };
 
   return (
@@ -20,9 +20,9 @@ export default function LoginScreen({ navigation, onSignedIn }) {
       <Image source={require('../../assets/TASK.png')} style={styles.logo} />
 
       {/* Subtítulo */}
-      <Text style={styles.subtitle}>LOGIN</Text>
+      <Text style={styles.subtitle}>Esqueceu a senha</Text>
 
-      {/* Inputs */}
+      {/* Input de email */}
       <TextInput
         placeholder="Email ou usuário"
         placeholderTextColor="#aaa"
@@ -32,42 +32,16 @@ export default function LoginScreen({ navigation, onSignedIn }) {
         onChangeText={setEmail}
         style={styles.input}
       />
-      <TextInput
-        placeholder="Senha"
-        placeholderTextColor="#aaa"
-        secureTextEntry
-        value={password}
-        onChangeText={setPassword}
-        style={styles.input}
-      />
 
-      {/* Remember me */}
-      <TouchableOpacity style={styles.rememberContainer}>
-        <Text style={styles.remember}>Remember me</Text>
-      </TouchableOpacity>
-
-      {/* Termos */}
-      <View style={styles.checkboxRow}>
-        <Ionicons name="checkbox" size={20} color="#20c997" />
-        <Text style={styles.terms}>
-          By continuing, you agree to the Terms of Use and Privacy Policy
-        </Text>
-      </View>
-
-      {/* Botão login */}
-      <TouchableOpacity style={styles.btn} onPress={handleLogin}>
-        <Text style={styles.btnText}>Log in</Text>
-      </TouchableOpacity>
-
-      {/* Esqueceu senha */}
-      <TouchableOpacity onPress={() => navigation.navigate('Esqueceu')}>
-        <Text style={styles.link}>Esqueceu sua senha ...</Text>
+      {/* Botão */}
+      <TouchableOpacity style={styles.btn} onPress={handleResetPassword}>
+        <Text style={styles.btnText}>Redefinir senha</Text>
       </TouchableOpacity>
 
       <View style={styles.divider} />
 
       {/* Redes sociais */}
-      <Text style={styles.socialText}>Ou continue com</Text>
+      <Text style={styles.socialText}>Ou use sua conta social</Text>
       <View style={styles.socialRow}>
         <Ionicons name="logo-facebook" size={28} color="#fff" />
         <Ionicons name="logo-apple" size={28} color="#fff" />
@@ -75,9 +49,9 @@ export default function LoginScreen({ navigation, onSignedIn }) {
         <Ionicons name="logo-twitter" size={28} color="#fff" />
       </View>
 
-      {/* Link cadastro */}
-      <TouchableOpacity onPress={() => navigation.navigate('SignUp')}>
-        <Text style={styles.link}>Não tem conta? Cadastre-se</Text>
+      {/* Link login */}
+      <TouchableOpacity onPress={() => navigation.navigate('Login')}>
+        <Text style={styles.link}>Voltar ao login</Text>
       </TouchableOpacity>
     </View>
   );
@@ -113,10 +87,6 @@ const styles = StyleSheet.create({
     marginVertical: 8,
     backgroundColor: '#222',
   },
-  rememberContainer: { alignSelf: 'flex-start', marginTop: 5 },
-  remember: { color: '#aaa', fontSize: 14 },
-  checkboxRow: { flexDirection: 'row', alignItems: 'center', marginVertical: 10 },
-  terms: { color: '#aaa', fontSize: 12, flex: 1, marginLeft: 5 },
   btn: {
     width: '100%',
     backgroundColor: '#20c997',
@@ -126,8 +96,8 @@ const styles = StyleSheet.create({
     marginVertical: 12,
   },
   btnText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
-  link: { color: '#20c997', marginTop: 12 },
   divider: { width: '100%', height: 1, backgroundColor: '#333', marginVertical: 20 },
   socialText: { color: '#aaa', marginBottom: 10 },
   socialRow: { flexDirection: 'row', justifyContent: 'space-between', width: '60%' },
+  link: { color: '#20c997', marginTop: 12 },
 });
