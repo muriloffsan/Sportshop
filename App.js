@@ -4,6 +4,7 @@ import { View } from 'react-native';
 import * as ExpoSplashScreen from 'expo-splash-screen';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { supabase } from './src/lib/supabase';
 
 import LoginScreen from './src/screens/LoginScreen';
 import SignUpScreen from './src/screens/CadastroScreens';
@@ -11,7 +12,6 @@ import HomeScreen from './src/screens/HomeScreen';
 import CustomSplashScreen from './src/screens/splashScreen';
 
 ExpoSplashScreen.preventAutoHideAsync();
-
 const Stack = createNativeStackNavigator();
 
 export default function App() {
@@ -20,8 +20,21 @@ export default function App() {
 
   useEffect(() => {
     const prepare = async () => {
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const { data: { session } } = await supabase.auth.getSession();
+      setUser(session?.user ?? null);
+
+      // Listener para mudanças no estado de auth
+      const { data: authListener } = supabase.auth.onAuthStateChange(
+        (_event, session) => {
+          setUser(session?.user ?? null);
+        }
+      );
+
       setAppIsReady(true);
+
+      return () => {
+        authListener.subscription.unsubscribe();
+      };
     };
     prepare();
   }, []);
@@ -38,21 +51,18 @@ export default function App() {
     <View style={{ flex: 1 }} onLayout={onLayoutRootView}>
       <NavigationContainer>
         <Stack.Navigator screenOptions={{ headerShown: false }}>
-          {/* Splash customizada como primeira tela */}
           <Stack.Screen name="Splash" component={CustomSplashScreen} />
           
-          {/* Tela de Login */}
-          <Stack.Screen name="Login">
-            {(props) => <LoginScreen {...props} onSignedIn={(u) => setUser(u)} />}
-          </Stack.Screen>
-          
-          {/* Tela de Cadastro */}
-          <Stack.Screen name="SignUp" component={SignUpScreen} />
-          
-          {/* Tela Home - só acessível se user estiver logado */}
-          <Stack.Screen name="Home">
-            {(props) => <HomeScreen {...props} user={user} onSignOut={() => setUser(null)} />}
-          </Stack.Screen>
+          {!user ? (
+            <>
+              <Stack.Screen name="Login" component={LoginScreen} />
+              <Stack.Screen name="SignUp" component={SignUpScreen} />
+            </>
+          ) : (
+            <Stack.Screen name="Home">
+              {(props) => <HomeScreen {...props} user={user} />}
+            </Stack.Screen>
+          )}
         </Stack.Navigator>
       </NavigationContainer>
     </View>
