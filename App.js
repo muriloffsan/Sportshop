@@ -21,8 +21,7 @@ export default function App() {
 
   useEffect(() => {
     const prepare = async () => {
-      // simula carregamento inicial
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      await new Promise(resolve => setTimeout(resolve, 1000)); // simula carregamento inicial
       setAppIsReady(true);
     };
     prepare();
@@ -34,15 +33,15 @@ export default function App() {
     }
   }, [appIsReady]);
 
-  // Enquanto não estiver pronto, mostra apenas a splash customizada
-  if (!appIsReady) {
-    return <CustomSplashScreen />;
-  }
+  if (!appIsReady) return null;
 
   return (
     <View style={{ flex: 1 }} onLayout={onLayoutRootView}>
       <NavigationContainer>
         <Stack.Navigator screenOptions={{ headerShown: false }}>
+          {/* Splash customizada como primeira tela */}
+          <Stack.Screen name="Splash" component={CustomSplashScreen} />
+
           {user ? (
             <Stack.Screen name="Home">
               {(props) => <HomeScreen {...props} user={user} onSignOut={() => setUser(null)} />}
