@@ -1,41 +1,55 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image, Alert, Linking } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { supabase } from '../lib/supabase';
 
-export default function LoginScreen({ navigation, onSignedIn }) {
+export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isForgotPassword, setIsForgotPassword] = useState(false);
   const [checked, setChecked] = useState(false);
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     if (!checked) {
       Alert.alert('Erro', 'Você precisa aceitar os Termos de Uso e Política de Privacidade.');
       return;
     }
-    
-    // Para teste: qualquer email/senha funciona
-    if (email && password) {
-      // Chama a função para atualizar o estado do usuário
-      onSignedIn({ email });
-      // Navega para a tela Home
-      navigation.navigate('Home');
-    } else {
+    if (!email || !password) {
       Alert.alert('Erro', 'Preencha email e senha.');
+      return;
+    }
+
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (error) {
+      Alert.alert('Erro', error.message);
+    } else {
+      // App.js já detecta a sessão e redireciona automaticamente
+      navigation.replace('Home');
     }
   };
 
-  const handleResetPassword = () => {
+  const handleResetPassword = async () => {
     if (!email) {
       Alert.alert('Erro', 'Preencha o campo de email!');
       return;
     }
-    Alert.alert('Sucesso', `Um link de redefinição foi enviado para ${email}`);
-    setIsForgotPassword(false);
+
+    const { error } = await supabase.auth.resetPasswordForEmail(email);
+
+    if (error) {
+      Alert.alert('Erro', error.message);
+    } else {
+      Alert.alert('Sucesso', `Um link de redefinição foi enviado para ${email}`);
+      setIsForgotPassword(false);
+    }
   };
 
   const handleTermsPress = () => {
-    Linking.openURL('https://www.exemplo.com/termos'); 
+    Linking.openURL('https://www.exemplo.com/termos');
   };
 
   return (
@@ -46,7 +60,7 @@ export default function LoginScreen({ navigation, onSignedIn }) {
       </Text>
 
       <TextInput
-        placeholder="Email ou usuário"
+        placeholder="Email"
         placeholderTextColor="#aaa"
         autoCapitalize="none"
         keyboardType="email-address"
@@ -63,12 +77,6 @@ export default function LoginScreen({ navigation, onSignedIn }) {
           onChangeText={setPassword}
           style={styles.input}
         />
-      )}
-
-      {!isForgotPassword && (
-        <TouchableOpacity style={styles.rememberContainer}>
-          <Text style={styles.remember}>Remember me</Text>
-        </TouchableOpacity>
       )}
 
       <TouchableOpacity style={styles.checkboxRow} onPress={() => setChecked(!checked)}>
@@ -94,14 +102,6 @@ export default function LoginScreen({ navigation, onSignedIn }) {
       </TouchableOpacity>
 
       <View style={styles.divider} />
-
-      <Text style={styles.socialText}>Ou continue com</Text>
-      <View style={styles.socialRow}>
-        <Ionicons name="logo-facebook" size={28} color="#fff" />
-        <Ionicons name="logo-apple" size={28} color="#fff" />
-        <Ionicons name="logo-google" size={28} color="#fff" />
-        <Ionicons name="logo-twitter" size={28} color="#fff" />
-      </View>
 
       {!isForgotPassword && (
         <TouchableOpacity onPress={() => navigation.navigate('SignUp')}>
