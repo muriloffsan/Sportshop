@@ -5,6 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 export default function LoginScreen({ navigation, onSignedIn }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [isForgotPassword, setIsForgotPassword] = useState(false);
 
   const handleLogin = () => {
     if (email && password) {
@@ -14,13 +15,24 @@ export default function LoginScreen({ navigation, onSignedIn }) {
     }
   };
 
+  const handleResetPassword = () => {
+    if (!email) {
+      Alert.alert('Erro', 'Preencha o campo de email!');
+      return;
+    }
+    Alert.alert('Sucesso', `Um link de redefinição foi enviado para ${email}`);
+    setIsForgotPassword(false); // volta para login
+  };
+
   return (
     <View style={styles.container}>
       {/* Logo */}
       <Image source={require('../../assets/TASK.png')} style={styles.logo} />
 
       {/* Subtítulo */}
-      <Text style={styles.subtitle}>LOGIN</Text>
+      <Text style={styles.subtitle}>
+        {isForgotPassword ? 'Redefinir senha' : 'LOGIN'}
+      </Text>
 
       {/* Inputs */}
       <TextInput
@@ -32,19 +44,23 @@ export default function LoginScreen({ navigation, onSignedIn }) {
         onChangeText={setEmail}
         style={styles.input}
       />
-      <TextInput
-        placeholder="Senha"
-        placeholderTextColor="#aaa"
-        secureTextEntry
-        value={password}
-        onChangeText={setPassword}
-        style={styles.input}
-      />
+      {!isForgotPassword && (
+        <TextInput
+          placeholder="Senha"
+          placeholderTextColor="#aaa"
+          secureTextEntry
+          value={password}
+          onChangeText={setPassword}
+          style={styles.input}
+        />
+      )}
 
       {/* Remember me */}
-      <TouchableOpacity style={styles.rememberContainer}>
-        <Text style={styles.remember}>Remember me</Text>
-      </TouchableOpacity>
+      {!isForgotPassword && (
+        <TouchableOpacity style={styles.rememberContainer}>
+          <Text style={styles.remember}>Remember me</Text>
+        </TouchableOpacity>
+      )}
 
       {/* Termos */}
       <View style={styles.checkboxRow}>
@@ -54,14 +70,23 @@ export default function LoginScreen({ navigation, onSignedIn }) {
         </Text>
       </View>
 
-      {/* Botão login */}
-      <TouchableOpacity style={styles.btn} onPress={handleLogin}>
-        <Text style={styles.btnText}>Log in</Text>
+      {/* Botão */}
+      <TouchableOpacity
+        style={styles.btn}
+        onPress={isForgotPassword ? handleResetPassword : handleLogin}
+      >
+        <Text style={styles.btnText}>
+          {isForgotPassword ? 'Redefinir senha' : 'Log in'}
+        </Text>
       </TouchableOpacity>
 
-      {/* Esqueceu senha */}
-      <TouchableOpacity onPress={() => navigation.navigate('Esqueceu')}>
-        <Text style={styles.link}>Esqueceu sua senha ...</Text>
+      {/* Alternar entre Login e Esqueceu senha */}
+      <TouchableOpacity
+        onPress={() => setIsForgotPassword(!isForgotPassword)}
+      >
+        <Text style={styles.link}>
+          {isForgotPassword ? 'Voltar ao login' : 'Esqueceu sua senha ...'}
+        </Text>
       </TouchableOpacity>
 
       <View style={styles.divider} />
@@ -76,9 +101,11 @@ export default function LoginScreen({ navigation, onSignedIn }) {
       </View>
 
       {/* Link cadastro */}
-      <TouchableOpacity onPress={() => navigation.navigate('SignUp')}>
-        <Text style={styles.link}>Não tem conta? Cadastre-se</Text>
-      </TouchableOpacity>
+      {!isForgotPassword && (
+        <TouchableOpacity onPress={() => navigation.navigate('SignUp')}>
+          <Text style={styles.link}>Não tem conta? Cadastre-se</Text>
+        </TouchableOpacity>
+      )}
     </View>
   );
 }
