@@ -4,6 +4,7 @@ import { View, Text, Image, StyleSheet } from 'react-native';
 export default function SplashScreen({ navigation }) {
   useEffect(() => {
     const timer = setTimeout(() => {
+      // Depois de 2 segundos vai para Login
       navigation.replace('Login');
     }, 2000);
 

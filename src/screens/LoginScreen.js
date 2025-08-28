@@ -7,7 +7,6 @@ export default function LoginScreen({ navigation, onSignedIn }) {
 
   const handleLogin = () => {
     if (email && password) {
-      // simulação de login (mock)
       onSignedIn({ email });
     } else {
       Alert.alert('Erro', 'Preencha email e senha.');
