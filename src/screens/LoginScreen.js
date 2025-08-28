@@ -10,27 +10,34 @@ export default function LoginScreen({ navigation }) {
   const [checked, setChecked] = useState(false);
 
   const handleLogin = async () => {
-    if (!checked) {
-      Alert.alert('Erro', 'Você precisa aceitar os Termos de Uso e Política de Privacidade.');
-      return;
-    }
-    if (!email || !password) {
-      Alert.alert('Erro', 'Preencha email e senha.');
-      return;
-    }
+  if (!checked) {
+    Alert.alert('Erro', 'Você precisa aceitar os Termos de Uso e Política de Privacidade.');
+    return;
+  }
+  if (!email || !password) {
+    Alert.alert('Erro', 'Preencha email e senha.');
+    return;
+  }
 
+  try {
     const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
+      email: email.trim(),
+      password: password.trim(),
     });
 
+    console.log("Resultado login:", { data, error });
+
     if (error) {
-      Alert.alert('Erro', error.message);
+      Alert.alert("Erro", error.message);
     } else {
-      // App.js já detecta a sessão e redireciona automaticamente
-      navigation.replace('Home');
+      navigation.replace("Home");
     }
-  };
+  } catch (err) {
+    console.error("Erro inesperado:", err);
+    Alert.alert("Erro inesperado", err.message);
+  }
+};
+
 
   const handleResetPassword = async () => {
     if (!email) {

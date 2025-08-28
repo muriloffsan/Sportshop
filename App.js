@@ -51,44 +51,6 @@ export default function App() {
     <View style={{ flex: 1 }} onLayout={onLayoutRootView}>
       <NavigationContainer>
         <Stack.Navigator screenOptions={{ headerShown: false }}>
-<<<<<<< HEAD
-          {/* Splash customizada */}
-          <Stack.Screen name="Splash" component={CustomSplashScreen} />
-
-          {/* Login */}
-          <Stack.Screen name="Login">
-            {(props) => (
-              <LoginScreen
-                navigation={props.navigation} // só navigation
-                onSignedIn={(u) => {
-                  setUser(u);
-                  props.navigation.navigate('Home'); // navigate apenas
-                }}
-              />
-            )}
-          </Stack.Screen>
-
-          {/* Cadastro */}
-          <Stack.Screen name="SignUp">
-            {(props) => (
-              <SignUpScreen navigation={props.navigation} />
-            )}
-          </Stack.Screen>
-
-          {/* Home */}
-          <Stack.Screen name="Home">
-            {(props) => (
-              <HomeScreen
-                navigation={props.navigation}
-                user={user}
-                onSignOut={() => {
-                  setUser(null);
-                  props.navigation.navigate('Login'); // navigate apenas
-                }}
-              />
-            )}
-          </Stack.Screen>
-=======
           <Stack.Screen name="Splash" component={CustomSplashScreen} />
           
           {!user ? (
@@ -101,7 +63,6 @@ export default function App() {
               {(props) => <HomeScreen {...props} user={user} />}
             </Stack.Screen>
           )}
->>>>>>> e5fc9749cb2c5c1da84c74608e22cf9e4b82d990
         </Stack.Navigator>
       </NavigationContainer>
     </View>
