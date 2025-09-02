@@ -1,3 +1,4 @@
+// App.js
 import 'react-native-gesture-handler';
 import React, { useEffect, useCallback, useState } from 'react';
 import { View } from 'react-native';
@@ -8,6 +9,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import LoginScreen from './src/screens/LoginScreen';
 import SignUpScreen from './src/screens/CadastroScreens';
 import HomeScreen from './src/screens/HomeScreen';
+import ProductDetailsScreen from './src/screens/ProductDetailsScreen.js';
 import CustomSplashScreen from './src/screens/splashScreen';
 
 ExpoSplashScreen.preventAutoHideAsync();
@@ -18,7 +20,6 @@ export default function App() {
 
   useEffect(() => {
     const prepare = async () => {
-      // aqui você não precisa checar o usuário
       setAppIsReady(true);
     };
     prepare();
@@ -40,6 +41,7 @@ export default function App() {
           <Stack.Screen name="Login" component={LoginScreen} />
           <Stack.Screen name="SignUp" component={SignUpScreen} />
           <Stack.Screen name="Home" component={HomeScreen} />
+          <Stack.Screen name="ProductDetails" component={ProductDetailsScreen} />
         </Stack.Navigator>
       </NavigationContainer>
     </View>
