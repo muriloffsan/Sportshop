@@ -18,10 +18,17 @@ export default function HomeScreen({ navigation }) {
     const { data, error } = await query;
     if (!error && data) {
       setProducts(data);
-
-      // gera lista de categorias únicas
       const uniqueCategories = [...new Set(data.map(p => p.category).filter(Boolean))];
       setCategories(uniqueCategories);
+    }
+  };
+
+  // 👉 Agora sem Alert
+  const handleCategoryPress = (item) => {
+    if (category === item) {
+      setCategory(null); // se já estava selecionada, volta para todos
+    } else {
+      setCategory(item);
     }
   };
 
@@ -40,24 +47,32 @@ export default function HomeScreen({ navigation }) {
     <View style={styles.container}>
       <Text style={styles.title}>Categorias</Text>
       <FlatList
-        horizontal
         data={categories}
         keyExtractor={(item) => item}
+        numColumns={2}
+        columnWrapperStyle={{ justifyContent: 'space-between', marginBottom: 10 }}
         renderItem={({ item }) => (
           <TouchableOpacity 
             style={[
               styles.categoryBtn, 
               category === item && styles.categoryBtnActive
             ]}
-            onPress={() => setCategory(category === item ? null : item)}
+            onPress={() => handleCategoryPress(item)}
           >
-            <Text style={styles.categoryText}>{item}</Text>
+            <Text style={[
+              styles.categoryText,
+              category === item && styles.categoryTextActive
+            ]}>
+              {item}
+            </Text>
           </TouchableOpacity>
         )}
-        showsHorizontalScrollIndicator={false}
+        showsVerticalScrollIndicator={false}
       />
 
-      <Text style={styles.title}>Produtos</Text>
+      <Text style={styles.title}>
+        {category ? `Produtos de ${category}` : "Todos os Produtos"}
+      </Text>
       <FlatList
         data={products}
         renderItem={renderProduct}
@@ -68,15 +83,38 @@ export default function HomeScreen({ navigation }) {
     </View>
   );
 }
-
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 16, backgroundColor: '#fff' },
-  title: { fontSize: 18, fontWeight: 'bold', marginVertical: 10 },
-  card: { flex: 1, margin: 8, backgroundColor: '#f9f9f9', borderRadius: 12, padding: 10, alignItems: 'center' },
-  image: { width: 100, height: 100, borderRadius: 8, marginBottom: 8 },
-  name: { fontSize: 14, fontWeight: '600', textAlign: 'center' },
+  container: { flex: 1, padding: 16, backgroundColor: '#111' }, 
+  title: { fontSize: 18, fontWeight: 'bold', marginVertical: 10, color: '#fff' },
+  card: { 
+    flex: 1, 
+    margin: 8, 
+    backgroundColor: '#fff', // <- fundo branco
+    borderRadius: 12, 
+    padding: 12, 
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOpacity: 0.2,
+    shadowRadius: 5,
+    elevation: 4
+  },
+  image: { width: 100, height: 100, borderRadius: 10, marginBottom: 8 },
+  name: { fontSize: 14, fontWeight: '600', textAlign: 'center', color: '#000' }, // <- texto preto
   price: { fontSize: 14, color: '#20c997', marginTop: 4 },
-  categoryBtn: { padding: 8, borderRadius: 20, backgroundColor: '#eee', marginRight: 8 },
+  categoryBtn: { 
+    flex: 1,
+    paddingVertical: 14, 
+    paddingHorizontal: 10, 
+    borderRadius: 12, 
+    backgroundColor: '#333', 
+    marginHorizontal: 6,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOpacity: 0.15,
+    shadowRadius: 3,
+    elevation: 3
+  },
   categoryBtnActive: { backgroundColor: '#20c997' },
-  categoryText: { fontSize: 14 }
+  categoryText: { fontSize: 14, color: '#aaa' },
+  categoryTextActive: { color: '#fff', fontWeight: 'bold' }
 });

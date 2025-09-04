@@ -12,6 +12,7 @@ import HomeScreen from './src/screens/HomeScreen';
 import ProductDetailsScreen from './src/screens/ProductDetailsScreen.js';
 import CustomSplashScreen from './src/screens/splashScreen';
 import CartScreen from './src/screens/CartScreen.js';
+import CheckoutScreen from './src/screens/CheckoutScreen.js'; // Importe a nova tela
 
 ExpoSplashScreen.preventAutoHideAsync();
 const Stack = createNativeStackNavigator();
@@ -24,6 +25,15 @@ function AppHeader() {
         <Text style={{ fontSize: 24 }}>🛒</Text>
       </TouchableOpacity>
     </View>
+  );
+}
+
+function BackButton() {
+  const navigation = useNavigation();
+  return (
+    <TouchableOpacity onPress={() => navigation.goBack()} style={{ marginRight: 10 }}>
+      <Text style={{ fontSize: 24 }}>⬅️</Text>
+    </TouchableOpacity>
   );
 }
 
@@ -49,17 +59,54 @@ export default function App() {
     <View style={{ flex: 1 }} onLayout={onLayoutRootView}>
       <NavigationContainer>
         <Stack.Navigator 
-          screenOptions={({ route }) => ({ 
+          screenOptions={({ navigation, route }) => ({ 
             headerShown: false,
-            headerRight: () => route.name === 'Home' ? <AppHeader /> : null
+            headerRight: () => route.name === 'Home' ? <AppHeader /> : null,
+            headerLeft: () => 
+              navigation.canGoBack() && route.name !== 'Home' && route.name !== 'Login' && route.name !== 'Splash' 
+                ? <BackButton /> 
+                : null
           })}
         >
           <Stack.Screen name="Splash" component={CustomSplashScreen} />
           <Stack.Screen name="Login" component={LoginScreen} />
           <Stack.Screen name="SignUp" component={SignUpScreen} />
-          <Stack.Screen name="Home" component={HomeScreen} options={{ headerShown: true, headerTitle: 'Início', headerRight: () => <AppHeader /> }} />
-          <Stack.Screen name="ProductDetails" component={ProductDetailsScreen} />
-          <Stack.Screen name="Cart" component={CartScreen} options={{ headerShown: true, headerTitle: 'Seu Carrinho' }} />
+          <Stack.Screen 
+            name="Home" 
+            component={HomeScreen} 
+            options={{ 
+              headerShown: true, 
+              headerTitle: 'Início', 
+              headerRight: () => <AppHeader /> 
+            }} 
+          />
+          <Stack.Screen 
+            name="ProductDetails" 
+            component={ProductDetailsScreen} 
+            options={{ 
+              headerShown: true, 
+              headerTitle: 'Detalhes do Produto',
+              headerLeft: () => <BackButton />
+            }} 
+          />
+          <Stack.Screen 
+            name="Cart" 
+            component={CartScreen} 
+            options={{ 
+              headerShown: true, 
+              headerTitle: 'Seu Carrinho',
+              headerLeft: () => <BackButton />
+            }} 
+          />
+          <Stack.Screen 
+            name="Checkout" 
+            component={CheckoutScreen} 
+            options={{ 
+              headerShown: true, 
+              headerTitle: 'Finalizar Compra',
+              headerLeft: () => <BackButton />
+            }} 
+          />
         </Stack.Navigator>
       </NavigationContainer>
     </View>

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { View, Text, FlatList, Image, TouchableOpacity, StyleSheet, Alert } from "react-native";
 import { supabase } from "../lib/supabase";
 
-export default function CartScreen() {
+export default function CartScreen({ navigation }) {
   const [cartItems, setCartItems] = useState([]);
   const [total, setTotal] = useState(0);
 
@@ -59,9 +59,45 @@ export default function CartScreen() {
     }
   };
 
-  const handleCheckout = () => {
-    Alert.alert("Compra Finalizada", "Obrigado por comprar com a gente!");
-    // Aqui futuramente você pode salvar em "orders"
+  const handleCheckout = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      Alert.alert("Erro", "Você precisa estar logado.");
+      return;
+    }
+
+    if (cartItems.length === 0) {
+      Alert.alert("Aviso", "Seu carrinho está vazio.");
+      return;
+    }
+
+    // monta payload para orders
+    const orderPayload = {
+      user_id: user.id,
+      items: cartItems.map((item) => ({
+        product_id: item.products.id,
+        name: item.products.name,
+        price: item.products.price,
+        quantity: item.quantity,
+      })),
+      total: total,
+      status: "pending",
+      created_at: new Date().toISOString(),
+    };
+
+    const { error } = await supabase.from("orders").insert([orderPayload]);
+
+    if (error) {
+      console.error(error);
+      Alert.alert("Erro", "Não foi possível finalizar a compra.");
+      return;
+    }
+
+    // limpa carrinho
+    await supabase.from("cart").delete().eq("user_id", user.id);
+
+    Alert.alert("Sucesso", "Pedido confirmado com sucesso!");
+    navigation.replace("Home"); // volta para a Home após a compra
   };
 
   const renderItem = ({ item }) => (
