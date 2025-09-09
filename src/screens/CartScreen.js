@@ -71,33 +71,44 @@ export default function CartScreen({ navigation }) {
       return;
     }
 
-    // monta payload para orders
-    const orderPayload = {
-      user_id: user.id,
-      items: cartItems.map((item) => ({
-        product_id: item.products.id,
-        name: item.products.name,
-        price: item.products.price,
-        quantity: item.quantity,
-      })),
-      total: total,
-      status: "pending",
-      created_at: new Date().toISOString(),
-    };
+    // 1️⃣ Inserir na tabela orders
+    const { data: orderData, error: orderError } = await supabase
+      .from("orders")
+      .insert([{ user_id: user.id, total }])
+      .select("id")
+      .single();
 
-    const { error } = await supabase.from("orders").insert([orderPayload]);
-
-    if (error) {
-      console.error(error);
-      Alert.alert("Erro", "Não foi possível finalizar a compra.");
+    if (orderError || !orderData) {
+      console.error(orderError);
+      Alert.alert("Erro", "Não foi possível criar o pedido.");
       return;
     }
 
-    // limpa carrinho
+    const orderId = orderData.id;
+
+    // 2️⃣ Inserir na tabela order_items
+    const itemsPayload = cartItems.map(item => ({
+      order_id: orderId,
+      product_id: item.products.id,
+      quantity: item.quantity,
+      price: item.products.price
+    }));
+
+    const { error: itemsError } = await supabase
+      .from("order_items")
+      .insert(itemsPayload);
+
+    if (itemsError) {
+      console.error(itemsError);
+      Alert.alert("Erro", "Não foi possível salvar os itens do pedido.");
+      return;
+    }
+
+    // 3️⃣ Limpar carrinho
     await supabase.from("cart").delete().eq("user_id", user.id);
 
     Alert.alert("Sucesso", "Pedido confirmado com sucesso!");
-    navigation.replace("Home"); // volta para a Home após a compra
+    navigation.replace("Home");
   };
 
   const renderItem = ({ item }) => (

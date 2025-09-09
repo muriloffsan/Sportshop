@@ -6,7 +6,6 @@ export default function SplashScreen({ navigation }) {
   const scaleAnim = useRef(new Animated.Value(0.5)).current; // escala inicial menor
 
   useEffect(() => {
-    // animação de fade-in e crescimento
     Animated.parallel([
       Animated.timing(fadeAnim, {
         toValue: 1,

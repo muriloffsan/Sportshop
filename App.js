@@ -12,7 +12,8 @@ import HomeScreen from './src/screens/HomeScreen';
 import ProductDetailsScreen from './src/screens/ProductDetailsScreen.js';
 import CustomSplashScreen from './src/screens/splashScreen';
 import CartScreen from './src/screens/CartScreen.js';
-import CheckoutScreen from './src/screens/CheckoutScreen.js'; // Importe a nova tela
+import CheckoutScreen from './src/screens/CheckoutScreen.js';
+import OrderHistoryScreen from './src/screens/OrderHistoryScreen.js'; // Importe a nova tela
 
 ExpoSplashScreen.preventAutoHideAsync();
 const Stack = createNativeStackNavigator();
@@ -20,7 +21,10 @@ const Stack = createNativeStackNavigator();
 function AppHeader() {
   const navigation = useNavigation();
   return (
-    <View style={{ flexDirection: 'row', justifyContent: 'flex-end', padding: 10 }}>
+    <View style={{ flexDirection: 'row', justifyContent: 'space-between', padding: 10, width: 80 }}>
+      <TouchableOpacity onPress={() => navigation.navigate("OrderHistory")}>
+        <Text style={{ fontSize: 24 }}>📋</Text>
+      </TouchableOpacity>
       <TouchableOpacity onPress={() => navigation.navigate("Cart")}>
         <Text style={{ fontSize: 24 }}>🛒</Text>
       </TouchableOpacity>
@@ -104,6 +108,15 @@ export default function App() {
             options={{ 
               headerShown: true, 
               headerTitle: 'Finalizar Compra',
+              headerLeft: () => <BackButton />
+            }} 
+          />
+          <Stack.Screen 
+            name="OrderHistory" 
+            component={OrderHistoryScreen} 
+            options={{ 
+              headerShown: true, 
+              headerTitle: 'Histórico de Pedidos',
               headerLeft: () => <BackButton />
             }} 
           />
