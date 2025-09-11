@@ -14,6 +14,8 @@ import CustomSplashScreen from './src/screens/splashScreen';
 import CartScreen from './src/screens/CartScreen.js';
 import CheckoutScreen from './src/screens/CheckoutScreen.js';
 import OrderHistoryScreen from './src/screens/OrderHistoryScreen.js'; // Importe a nova tela
+import PromoAdmin from './src/screens/PromoAdmin';
+
 
 ExpoSplashScreen.preventAutoHideAsync();
 const Stack = createNativeStackNavigator();
@@ -110,6 +112,15 @@ export default function App() {
               headerTitle: 'Finalizar Compra',
               headerLeft: () => <BackButton />
             }} 
+          />
+          <Stack.Screen
+            name="PromoAdmin"
+            component={PromoAdmin}
+            options={{
+              headerShown: true,
+              headerTitle: 'Promoções Admin',
+              headerLeft: () => <BackButton />
+            }}
           />
           <Stack.Screen 
             name="OrderHistory" 
