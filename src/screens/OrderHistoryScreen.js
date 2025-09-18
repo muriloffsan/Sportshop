@@ -13,6 +13,7 @@ export default function OrderHistoryScreen() {
   const fetchOrders = async () => {
     setLoading(true);
     const { data: { user } } = await supabase.auth.getUser();
+
     if (!user) {
       setOrders([]);
       setLoading(false);
@@ -26,10 +27,10 @@ export default function OrderHistoryScreen() {
         total,
         status,
         created_at,
-        order_items(
+        order_items!inner(
           quantity,
           price,
-          products(id, name, image_url)
+          products!inner(id, name, image_url)
         )
       `)
       .eq("user_id", user.id)
@@ -41,6 +42,7 @@ export default function OrderHistoryScreen() {
     } else {
       setOrders(data || []);
     }
+
     setLoading(false);
   };
 
@@ -50,7 +52,7 @@ export default function OrderHistoryScreen() {
       <View style={{ flex: 1, marginLeft: 10 }}>
         <Text style={styles.productName}>{item.products.name}</Text>
         <Text style={styles.productQty}>Qtd: {item.quantity}</Text>
-        <Text style={styles.productPrice}>R$ {item.price}</Text>
+        <Text style={styles.productPrice}>R$ {(item.price * item.quantity).toFixed(2)}</Text>
       </View>
     </View>
   );
@@ -59,12 +61,14 @@ export default function OrderHistoryScreen() {
     <View style={styles.orderCard}>
       <Text style={styles.orderDate}>Pedido: {new Date(item.created_at).toLocaleString()}</Text>
       <Text style={styles.orderStatus}>Status: {item.status}</Text>
+
       <FlatList
         data={item.order_items}
         keyExtractor={(i) => i.products.id.toString()}
         renderItem={renderOrderItem}
         scrollEnabled={false}
       />
+
       <Text style={styles.orderTotal}>Total: R$ {item.total.toFixed(2)}</Text>
     </View>
   );
@@ -90,7 +94,7 @@ const styles = StyleSheet.create({
   orderCard: { borderWidth: 1, borderColor: "#ddd", borderRadius: 8, padding: 12, marginBottom: 12, backgroundColor: "#f9f9f9" },
   orderDate: { fontWeight: "600", marginBottom: 4 },
   orderStatus: { marginBottom: 8, color: "#555" },
-  orderTotal: { fontWeight: "bold", marginTop: 8 },
+  orderTotal: { fontWeight: "bold", marginTop: 8, fontSize: 16 },
   orderItem: { flexDirection: "row", marginBottom: 8, backgroundColor: "#fff", padding: 6, borderRadius: 6 },
   productImage: { width: 50, height: 50, borderRadius: 6 },
   productName: { fontSize: 14, fontWeight: "600" },
