@@ -150,6 +150,28 @@ export default function ProductDetailsScreen({ route, navigation }) {
       <Text style={styles.reviewComment}>{item.comment}</Text>
     </View>
   );
+  // Função para calcular preço final
+const getFinalPrice = (product) => {
+  const now = new Date();
+  if (
+    product.discount > 0 &&
+    product.promo_until &&
+    new Date(product.promo_until) > now
+  ) {
+    return product.price * (1 - product.discount / 100);
+  }
+  return product.price;
+};
+
+const isOnPromotion = (product) => {
+  const now = new Date();
+  return (
+    product.discount > 0 &&
+    product.promo_until &&
+    new Date(product.promo_until) > now
+  );
+};
+
 
 
  return (
@@ -162,8 +184,20 @@ export default function ProductDetailsScreen({ route, navigation }) {
 
       <Image source={{ uri: product.image_url }} style={styles.image} />
       <Text style={styles.name}>{product.name}</Text>
-      <Text style={styles.price}>R$ {product.price}</Text>
-      <Text style={styles.description}>{product.description}</Text>
+
+{isOnPromotion(product) ? (
+  <View style={styles.priceRow}>
+    <Text style={styles.oldPrice}>R$ {product.price.toFixed(2)}</Text>
+    <Text style={styles.discountPrice}>
+      R$ {getFinalPrice(product).toFixed(2)}
+    </Text>
+    <Text style={styles.discountBadge}>-{product.discount}%</Text>
+  </View>
+) : (
+  <Text style={styles.price}>R$ {product.price.toFixed(2)}</Text>
+)}
+
+<Text style={styles.description}>{product.description}</Text>
 
       {/* Média de avaliações */}
       {avgRating ? (
@@ -252,5 +286,10 @@ const styles = StyleSheet.create({
   reviewForm: { marginTop: 20 },
   starInput: { flexDirection: "row", justifyContent: "center", marginBottom: 10 },
   input: { backgroundColor: "#222", color: "#fff", padding: 10, borderRadius: 8, marginBottom: 10 },
+  priceRow: { flexDirection: "row", alignItems: "center", justifyContent: "center", marginVertical: 8 },
+oldPrice: { fontSize: 16, color: "#888", textDecorationLine: "line-through", marginRight: 8 },
+discountPrice: { fontSize: 20, fontWeight: "bold", color: "#e63946" },
+discountBadge: { fontSize: 14, fontWeight: "bold", color: "#20c997", marginLeft: 6 },
+
 });
 
