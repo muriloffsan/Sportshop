@@ -32,49 +32,26 @@ export default function HomeScreen({ navigation }) {
 
     fetchProducts();
   }, [category]);
-  
 
   // ---------------------
   // CHECK USER ROLE
   // ---------------------
   useEffect(() => {
-  const checkRole = async () => {
-    const { data: { user }, error: userError } = await supabase.auth.getUser();
-    if (userError) {
-      console.log("Erro ao obter usuário:", userError);
-      return;
-    }
+    const checkRole = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
 
-    if (!user) {
-      console.log("Usuário não logado");
-      return;
-    }
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("role")
+        .eq("id", user.id)
+        .maybeSingle();
 
-    console.log("Usuário logado:", user);
+      setIsAdmin(profile?.role?.trim().toLowerCase() === "admin");
+    };
 
-    const { data: profile, error } = await supabase
-      .from("profiles")
-      .select("role")
-      .eq("id", user.id)
-      .maybeSingle();
-
-    if (error) {
-      console.log("Erro ao buscar perfil:", error);
-    }
-
-    console.log("Profile retornado:", profile);
-
-    // Lista de IDs de usuários que você quer forçar como admin
-    const forcedAdmins = ["COLOQUE_AQUI_O_USER_ID_DO_ADMIN"];
-    const isForcedAdmin = forcedAdmins.includes(user.id);
-
-    // Considera admin se o role for admin ou se estiver na lista de forcedAdmins
-    setIsAdmin(profile?.role?.trim().toLowerCase() === "admin" || isForcedAdmin);
-  };
-
-  checkRole();
-}, []);
-
+    checkRole();
+  }, []);
 
   // ---------------------
   // CATEGORY HANDLER
@@ -88,10 +65,15 @@ export default function HomeScreen({ navigation }) {
   // ---------------------
   const getFinalPrice = (product) => {
     const now = new Date();
-    if (product.discount > 0 && (!product.promo_until || new Date(product.promo_until) > now)) {
+    if (product.discount > 0 && product.promo_until && new Date(product.promo_until) > now) {
       return product.price * (1 - product.discount / 100);
     }
     return product.price;
+  };
+
+  const isOnPromotion = (product) => {
+    const now = new Date();
+    return product.discount > 0 && product.promo_until && new Date(product.promo_until) > now;
   };
 
   // ---------------------
@@ -99,7 +81,7 @@ export default function HomeScreen({ navigation }) {
   // ---------------------
   const renderProduct = ({ item }) => {
     const finalPrice = getFinalPrice(item);
-    const hasDiscount = finalPrice < item.price;
+    const onPromo = isOnPromotion(item);
 
     return (
       <TouchableOpacity
@@ -109,13 +91,13 @@ export default function HomeScreen({ navigation }) {
         <Image source={{ uri: item.image_url }} style={styles.image} />
         <Text style={styles.name}>{item.name}</Text>
 
-        {hasDiscount ? (
+        {onPromo ? (
           <View style={styles.priceRow}>
             <Text style={styles.oldPrice}>R$ {item.price.toFixed(2)}</Text>
             <Text style={styles.discountPrice}>R$ {finalPrice.toFixed(2)}</Text>
           </View>
         ) : (
-          <Text style={styles.price}>R$ {item.price.toFixed(2)}</Text>
+          <Text style={styles.price}>R$ {finalPrice.toFixed(2)}</Text>
         )}
       </TouchableOpacity>
     );
@@ -150,6 +132,7 @@ export default function HomeScreen({ navigation }) {
         {category ? `Produtos de ${category}` : "Todos os Produtos"}
       </Text>
 
+      {/* Botão de administração */}
       {isAdmin && (
         <TouchableOpacity
           style={styles.adminBtn}

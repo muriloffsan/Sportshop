@@ -38,7 +38,7 @@ function BackButton() {
   const navigation = useNavigation();
   return (
     <TouchableOpacity onPress={() => navigation.goBack()} style={{ marginRight: 10 }}>
-      <Text style={{ fontSize: 24 }}>⬅️</Text>
+      <Text style={{ fontSize: 24 }}>⬅</Text>
     </TouchableOpacity>
   );
 }
@@ -89,8 +89,7 @@ export default function App() {
           <Stack.Screen 
             name="ProductDetails" 
             component={ProductDetailsScreen} 
-            options={{ 
-              headerShown: true, 
+            options={{  
               headerTitle: 'Detalhes do Produto',
               headerLeft: () => <BackButton />
             }} 
