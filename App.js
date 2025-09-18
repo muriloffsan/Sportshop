@@ -5,6 +5,8 @@ import { View, TouchableOpacity, Text } from 'react-native';
 import * as ExpoSplashScreen from 'expo-splash-screen';
 import { NavigationContainer, useNavigation } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import Icon from "react-native-vector-icons/MaterialCommunityIcons"; 
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 import LoginScreen from './src/screens/LoginScreen';
 import SignUpScreen from './src/screens/CadastroScreens';
@@ -23,12 +25,13 @@ const Stack = createNativeStackNavigator();
 function AppHeader() {
   const navigation = useNavigation();
   return (
-    <View style={{ flexDirection: 'row', justifyContent: 'space-between', padding: 10, width: 80 }}>
+    <View style={{ flexDirection: "row", justifyContent: "space-between", padding: 10, width: 80 }}>
       <TouchableOpacity onPress={() => navigation.navigate("OrderHistory")}>
-        <Text style={{ fontSize: 24 }}>📋</Text>
+        <Icon name="clipboard-text" size={24} color="#000" />
       </TouchableOpacity>
+
       <TouchableOpacity onPress={() => navigation.navigate("Cart")}>
-        <Text style={{ fontSize: 24 }}>🛒</Text>
+        <Icon name="cart" size={24} color="#000" />
       </TouchableOpacity>
     </View>
   );
