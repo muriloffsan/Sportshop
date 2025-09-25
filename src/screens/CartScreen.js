@@ -84,7 +84,7 @@ export default function CartScreen() {
       return;
     }
 
-    // ✅ Navegando para a tela correta
+    // Navegando para a tela correta
     navigation.navigate("Checkout", { cartItems, total });
   };
 

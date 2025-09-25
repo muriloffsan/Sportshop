@@ -176,14 +176,33 @@ const isOnPromotion = (product) => {
 
  return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+      {/* Container dos botões */}
+    <View style={styles.topBar}>
       {/* Botão de voltar */}
-      <TouchableOpacity style={styles.backBtn} onPress={() => navigation.goBack()}>
+      <TouchableOpacity
+        style={styles.backBtn}
+        onPress={() => navigation.goBack()}
+      >
         <Ionicons name="arrow-back" size={24} color="#fff" />
         <Text style={styles.backText}>Voltar</Text>
       </TouchableOpacity>
 
-      <Image source={{ uri: product.image_url }} style={styles.image} />
-      <Text style={styles.name}>{product.name}</Text>
+      {/* Botão de favorito (ainda vai pra Home por enquanto) */}
+      <TouchableOpacity
+  style={styles.favoriteBtn}
+  onPress={handleToggleFavorite}
+>
+  <Ionicons
+    name={isFavorite ? "heart" : "heart-outline"}
+    size={24}
+    color="#fff"
+  />
+</TouchableOpacity>
+
+    </View>
+
+    <Image source={{ uri: product.image_url }} style={styles.image} />
+    <Text style={styles.name}>{product.name}</Text>
 
 {isOnPromotion(product) ? (
   <View style={styles.priceRow}>
@@ -290,6 +309,19 @@ const styles = StyleSheet.create({
 oldPrice: { fontSize: 16, color: "#888", textDecorationLine: "line-through", marginRight: 8 },
 discountPrice: { fontSize: 20, fontWeight: "bold", color: "#e63946" },
 discountBadge: { fontSize: 14, fontWeight: "bold", color: "#20c997", marginLeft: 6 },
+topBar: {
+  flexDirection: "row",
+  justifyContent: "space-between",
+  alignItems: "center",
+  marginBottom: 20,
+},
+
+favoriteBtn: {
+  backgroundColor: "#e63946",
+  padding: 8,
+  borderRadius: 20,
+},
+
 
 });
 
