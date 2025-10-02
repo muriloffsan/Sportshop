@@ -17,6 +17,7 @@ import CartScreen from './src/screens/CartScreen.js';
 import CheckoutScreen from './src/screens/CheckoutScreen.js';
 import OrderHistoryScreen from './src/screens/OrderHistoryScreen.js'; // Importe a nova tela
 import PromoAdmin from './src/screens/PromoAdmin';
+import FavoritesScreen from './src/screens/FavoritesScreen.js';
 
 
 ExpoSplashScreen.preventAutoHideAsync();
@@ -25,10 +26,15 @@ const Stack = createNativeStackNavigator();
 function AppHeader() {
   const navigation = useNavigation();
   return (
-    <View style={{ flexDirection: "row", justifyContent: "space-between", padding: 10, width: 80 }}>
+    <View style={{ flexDirection: "row", justifyContent: "space-between", padding: 10, width: 120 }}>
       <TouchableOpacity onPress={() => navigation.navigate("OrderHistory")}>
         <Icon name="clipboard-text" size={24} color="#000" />
       </TouchableOpacity>
+
+      <TouchableOpacity onPress={() => navigation.navigate("Favorites")}>
+        <Icon name="heart-outline" size={24} color="#000" />
+      </TouchableOpacity>
+      
 
       <TouchableOpacity onPress={() => navigation.navigate("Cart")}>
         <Icon name="cart" size={24} color="#000" />
@@ -106,6 +112,16 @@ export default function App() {
               headerLeft: () => <BackButton />
             }} 
           />
+          <Stack.Screen
+            name="Favorites"
+            component={FavoritesScreen}
+            options={{
+              headerShown: true,
+              headerTitle: "Meus Favoritos",
+              headerLeft: () => <BackButton />
+            }}
+          />
+
           <Stack.Screen 
             name="Checkout" 
             component={CheckoutScreen} 
