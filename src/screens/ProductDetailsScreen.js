@@ -171,6 +171,56 @@ const isOnPromotion = (product) => {
     new Date(product.promo_until) > now
   );
 };
+const [isFavorite, setIsFavorite] = useState(false);
+
+useEffect(() => {
+  fetchFavoriteStatus();
+}, []);
+
+const fetchFavoriteStatus = async () => {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return;
+
+  const { data, error } = await supabase
+    .from("favorites")
+    .select("id")
+    .eq("user_id", user.id)
+    .eq("product_id", product.id)
+    .maybeSingle();
+
+  if (!error) setIsFavorite(!!data);
+};
+
+const handleToggleFavorite = async () => {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    Alert.alert("Erro", "Você precisa estar logado para favoritar.");
+    return;
+  }
+
+  if (isFavorite) {
+    const { error } = await supabase
+      .from("favorites")
+      .delete()
+      .eq("user_id", user.id)
+      .eq("product_id", product.id);
+
+    if (!error) {
+      setIsFavorite(false);
+      Alert.alert("Removido", "Produto removido dos favoritos.");
+    }
+  } else {
+    const { error } = await supabase
+      .from("favorites")
+      .insert([{ user_id: user.id, product_id: product.id }]);
+
+    if (!error) {
+      setIsFavorite(true);
+      Alert.alert("Adicionado", "Produto adicionado aos favoritos.");
+    }
+  }
+};
+
 
 
 
