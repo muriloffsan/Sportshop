@@ -1,6 +1,15 @@
 // src/screens/PromoAdmin.js
 import React, { useEffect, useState } from "react";
-import { View, Text, FlatList, TouchableOpacity, TextInput, StyleSheet, Alert } from "react-native";
+import { 
+  View, 
+  Text, 
+  FlatList, 
+  TouchableOpacity, 
+  TextInput, 
+  StyleSheet, 
+  Alert, 
+  Image 
+} from "react-native";
 import { supabase } from "../lib/supabase";
 import DateTimePicker from "@react-native-community/datetimepicker";
 
@@ -57,16 +66,25 @@ export default function PromoAdmin({ navigation }) {
     fetchProducts();
   };
 
+  // ------------------
+  // Renderiza os cards
+  // ------------------
   const renderProductItem = ({ item }) => (
     <TouchableOpacity
       style={[
-        styles.productBtn,
-        selectedProduct?.id === item.id && styles.productBtnActive,
+        styles.productCard,
+        selectedProduct?.id === item.id && styles.productCardActive,
       ]}
       onPress={() => setSelectedProduct(item)}
     >
-      <Text style={styles.productText}>{item.name}</Text>
-      <Text style={styles.productText}>R$ {item.price.toFixed(2)}</Text>
+      <Image 
+        source={{ uri: item.image_url }} 
+        style={styles.productImage} 
+      />
+      <Text style={styles.productName} numberOfLines={1}>
+        {item.name}
+      </Text>
+      <Text style={styles.productPrice}>R$ {item.price.toFixed(2)}</Text>
     </TouchableOpacity>
   );
 
@@ -74,6 +92,7 @@ export default function PromoAdmin({ navigation }) {
     <View style={styles.container}>
       <Text style={styles.title}>Escolha o produto para promoção</Text>
 
+      {/* Lista horizontal de produtos */}
       <FlatList
         data={products}
         keyExtractor={(item) => item.id.toString()}
@@ -83,6 +102,7 @@ export default function PromoAdmin({ navigation }) {
         style={{ marginBottom: 20 }}
       />
 
+      {/* Campo de desconto */}
       <TextInput
         placeholder="Desconto (%)"
         placeholderTextColor="#aaa"
@@ -92,6 +112,7 @@ export default function PromoAdmin({ navigation }) {
         onChangeText={setDiscount}
       />
 
+      {/* Selecionar data */}
       <TouchableOpacity
         style={styles.dateBtn}
         onPress={() => setShowDatePicker(true)}
@@ -113,6 +134,7 @@ export default function PromoAdmin({ navigation }) {
         />
       )}
 
+      {/* Botão de salvar */}
       <TouchableOpacity style={styles.saveBtn} onPress={handleSavePromotion}>
         <Text style={styles.saveBtnText}>Aplicar Promoção</Text>
       </TouchableOpacity>
@@ -123,15 +145,45 @@ export default function PromoAdmin({ navigation }) {
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 16, backgroundColor: "#111" },
   title: { fontSize: 18, fontWeight: "bold", color: "#fff", marginBottom: 12 },
-  productBtn: {
-    padding: 12,
-    borderRadius: 10,
-    backgroundColor: "#333",
-    marginHorizontal: 6,
+
+  // --- Cards ---
+  productCard: {
+    width: 140,
+    marginHorizontal: 8,
+    backgroundColor: "#222",
+    borderRadius: 12,
+    padding: 10,
     alignItems: "center",
+    shadowColor: "#000",
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 4,
   },
-  productBtnActive: { backgroundColor: "#20c997" },
-  productText: { color: "#fff", fontSize: 14 },
+  productCardActive: {
+    borderWidth: 2,
+    borderColor: "#20c997",
+    backgroundColor: "#2a2a2a",
+  },
+  productImage: {
+    width: 100,
+    height: 100,
+    borderRadius: 10,
+    marginBottom: 8,
+    resizeMode: "cover",
+  },
+  productName: {
+    color: "#fff",
+    fontSize: 14,
+    fontWeight: "600",
+    textAlign: "center",
+  },
+  productPrice: {
+    color: "#20c997",
+    fontSize: 13,
+    marginTop: 4,
+  },
+
+  // --- Inputs & Botões ---
   input: {
     backgroundColor: "#222",
     color: "#fff",
