@@ -1,13 +1,31 @@
 // src/screens/HomeScreen.js
 import React, { useEffect, useState } from "react";
-import { View, Text, FlatList, Image, TouchableOpacity, StyleSheet } from "react-native";
+import { 
+  View, 
+  Text, 
+  FlatList, 
+  Image, 
+  TouchableOpacity, 
+  StyleSheet, 
+  Dimensions, 
+  ScrollView 
+} from "react-native";
 import { supabase } from "../lib/supabase";
+
+const { width } = Dimensions.get("window");
 
 export default function HomeScreen({ navigation }) {
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [category, setCategory] = useState(null);
   const [isAdmin, setIsAdmin] = useState(false);
+
+  // Imagens locais do banner
+  const banners = [
+    { id: 1, image: require("../../assets/Bola.png") },
+    { id: 2, image: require("../../assets/camisa.png") },
+    { id: 3, image: require("../../assets/icon.png") },
+  ];
 
   // ---------------------
   // FETCH PRODUCTS
@@ -107,9 +125,9 @@ export default function HomeScreen({ navigation }) {
   // JSX
   // ---------------------
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container}>
+      {/* Categorias */}
       <Text style={styles.title}>Categorias</Text>
-
       <FlatList
         data={categories}
         keyExtractor={(item) => item}
@@ -126,13 +144,30 @@ export default function HomeScreen({ navigation }) {
           </TouchableOpacity>
         )}
         showsVerticalScrollIndicator={false}
+        scrollEnabled={false} // 👉 impede conflito com ScrollView principal
       />
 
+      {/* Banner só aparece em "Todos os produtos" */}
+      {!category && (
+        <FlatList
+          data={banners}
+          keyExtractor={(item) => item.id.toString()}
+          horizontal
+          pagingEnabled
+          showsHorizontalScrollIndicator={false}
+          renderItem={({ item }) => (
+            <Image source={item.image} style={styles.banner} />
+          )}
+          style={{ marginBottom: 16 }}
+        />
+      )}
+
+      {/* Título de produtos */}
       <Text style={styles.title}>
         {category ? `Produtos de ${category}` : "Todos os Produtos"}
       </Text>
 
-      {/* Botão de administração */}
+      {/* Botão admin */}
       {isAdmin && (
         <TouchableOpacity
           style={styles.adminBtn}
@@ -142,14 +177,16 @@ export default function HomeScreen({ navigation }) {
         </TouchableOpacity>
       )}
 
+      {/* Produtos */}
       <FlatList
         data={products}
         renderItem={renderProduct}
         keyExtractor={(item) => item.id.toString()}
         numColumns={2}
         columnWrapperStyle={{ justifyContent: "space-between" }}
+        scrollEnabled={false} // 👉 scroll quem faz é o ScrollView principal
       />
-    </View>
+    </ScrollView>
   );
 }
 
@@ -158,6 +195,13 @@ export default function HomeScreen({ navigation }) {
 // ---------------------
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 16, backgroundColor: "#111" },
+  banner: {
+    width: width - 32,
+    height: 180,
+    borderRadius: 12,
+    marginRight: 12,
+    resizeMode: "cover",
+  },
   title: { fontSize: 18, fontWeight: "bold", marginVertical: 10, color: "#fff" },
   card: {
     flex: 1,
