@@ -1,14 +1,14 @@
 // src/screens/HomeScreen.js
 import React, { useEffect, useState } from "react";
-import { 
-  View, 
-  Text, 
-  FlatList, 
-  Image, 
-  TouchableOpacity, 
-  StyleSheet, 
-  Dimensions, 
-  ScrollView 
+import {
+  View,
+  Text,
+  FlatList,
+  Image,
+  TouchableOpacity,
+  StyleSheet,
+  Dimensions,
+  ScrollView,
 } from "react-native";
 import { supabase } from "../lib/supabase";
 
@@ -19,13 +19,7 @@ export default function HomeScreen({ navigation }) {
   const [categories, setCategories] = useState([]);
   const [category, setCategory] = useState(null);
   const [isAdmin, setIsAdmin] = useState(false);
-
-  // Imagens locais do banner
-  const banners = [
-    { id: 1, image: require("../../assets/Bola.png") },
-    { id: 2, image: require("../../assets/camisa.png") },
-    { id: 3, image: require("../../assets/icon.png") },
-  ];
+  const [promotions, setPromotions] = useState([]);
 
   // ---------------------
   // FETCH PRODUCTS
@@ -43,13 +37,39 @@ export default function HomeScreen({ navigation }) {
 
       if (data) {
         setProducts(data);
-        const uniqueCategories = [...new Set(data.map(p => p.category).filter(Boolean))];
+        const uniqueCategories = [
+          ...new Set(data.map((p) => p.category).filter(Boolean)),
+        ];
         setCategories(uniqueCategories);
       }
     };
 
     fetchProducts();
   }, [category]);
+  // ---------------------
+// FETCH PROMOTIONS
+// ---------------------
+useEffect(() => {
+  const fetchPromotions = async () => {
+    const now = new Date().toISOString();
+    const { data, error } = await supabase
+      .from("promotions")
+      .select("*")
+      .eq("is_active", true)
+      .lte("start_date", now)
+      .or(`end_date.is.null,end_date.gte.${now}`);
+
+    if (error) {
+      console.log("Erro ao buscar promoções:", error);
+      return;
+    }
+
+    setPromotions(data || []);
+  };
+
+  fetchPromotions();
+}, []);
+
 
   // ---------------------
   // CHECK USER ROLE
@@ -72,18 +92,15 @@ export default function HomeScreen({ navigation }) {
   }, []);
 
   // ---------------------
-  // CATEGORY HANDLER
-  // ---------------------
-  const handleCategoryPress = (item) => {
-    setCategory(category === item ? null : item);
-  };
-
-  // ---------------------
-  // PRICE CALCULATION
+  // PRICE & PROMO
   // ---------------------
   const getFinalPrice = (product) => {
     const now = new Date();
-    if (product.discount > 0 && product.promo_until && new Date(product.promo_until) > now) {
+    if (
+      product.discount > 0 &&
+      product.promo_until &&
+      new Date(product.promo_until) > now
+    ) {
       return product.price * (1 - product.discount / 100);
     }
     return product.price;
@@ -91,11 +108,15 @@ export default function HomeScreen({ navigation }) {
 
   const isOnPromotion = (product) => {
     const now = new Date();
-    return product.discount > 0 && product.promo_until && new Date(product.promo_until) > now;
+    return (
+      product.discount > 0 &&
+      product.promo_until &&
+      new Date(product.promo_until) > now
+    );
   };
 
   // ---------------------
-  // RENDER PRODUCT CARD
+  // RENDER PRODUCT
   // ---------------------
   const renderProduct = ({ item }) => {
     const finalPrice = getFinalPrice(item);
@@ -126,48 +147,110 @@ export default function HomeScreen({ navigation }) {
   // ---------------------
   return (
     <ScrollView style={styles.container}>
-      {/* Categorias */}
+      {/* CATEGORIAS */}
       <Text style={styles.title}>Categorias</Text>
       <FlatList
         data={categories}
         keyExtractor={(item) => item}
         numColumns={2}
-        columnWrapperStyle={{ justifyContent: "space-between", marginBottom: 10 }}
+        columnWrapperStyle={{
+          justifyContent: "space-between",
+          marginBottom: 10,
+        }}
         renderItem={({ item }) => (
           <TouchableOpacity
-            style={[styles.categoryBtn, category === item && styles.categoryBtnActive]}
-            onPress={() => handleCategoryPress(item)}
+            style={[
+              styles.categoryBtn,
+              category === item && styles.categoryBtnActive,
+            ]}
+            onPress={() => setCategory(category === item ? null : item)}
           >
-            <Text style={[styles.categoryText, category === item && styles.categoryTextActive]}>
+            <Text
+              style={[
+                styles.categoryText,
+                category === item && styles.categoryTextActive,
+              ]}
+            >
               {item}
             </Text>
           </TouchableOpacity>
         )}
         showsVerticalScrollIndicator={false}
-        scrollEnabled={false} // 👉 impede conflito com ScrollView principal
+        scrollEnabled={false}
       />
 
-      {/* Banner só aparece em "Todos os produtos" */}
+      {/* BANNER PUBLICITÁRIO */}
       {!category && (
-        <FlatList
-          data={banners}
-          keyExtractor={(item) => item.id.toString()}
+        <ScrollView
           horizontal
           pagingEnabled
           showsHorizontalScrollIndicator={false}
-          renderItem={({ item }) => (
-            <Image source={item.image} style={styles.banner} />
-          )}
-          style={{ marginBottom: 16 }}
-        />
+          style={styles.bannerContainer}
+        >
+          {/* Banner 1 - Publicidade principal */}
+          <View style={[styles.banner, { backgroundColor: "#00bf63" }]}>
+            <View style={styles.bannerLeft}>
+              <Image
+                source={require("../../assets/TASK.png")}
+                style={styles.bannerLogo}
+              />
+            </View>
+            <View style={styles.bannerRight}>
+              <Text style={styles.bannerTitle}>Qualidade e Desempenho</Text>
+              <Text style={styles.bannerText}>
+                Os melhores produtos esportivos do mercado para você estão aqui!
+              </Text>
+            </View>
+          </View>
+
+          {/* Banner 2 - Mais vendido */}
+          <View style={[styles.banner, { backgroundColor: "#000" }]}>
+            <Image
+              source={require("../../assets/Bola.png")}
+              style={styles.bannerProduct}
+            />
+            <View style={styles.bannerRight}>
+              <Text style={styles.bannerTitle}>Mais Vendidos</Text>
+              <Text style={styles.bannerText}>
+                O item mais{" "}
+                <Text style={{ color: "#00bf63", fontWeight: "bold" }}>
+                  vendidos
+                </Text>{" "}
+                da semana! Garanta já o seu!
+              </Text>
+            </View>
+          </View>
+
+          {/* Banner 3 - Promoção */}
+          <View style={[styles.banner, { backgroundColor: "#000" }]}>
+            <Image
+              source={require("../../assets/camisa.png")}
+              style={styles.bannerProduct}
+            />
+            <View style={styles.bannerRight}>
+              <Text style={styles.bannerTitle}>Super Promoção 💥</Text>
+              <Text style={styles.bannerText}>
+                Descontos de{" "}
+                <Text style={{ color: "#00bf63", fontWeight: "bold" }}>
+                  até 50%
+                </Text>{" "}
+                válidos até{" "}
+                <Text style={{ color: "#00bf63", fontWeight: "bold" }}>
+                  12/10
+                </Text>
+                !
+              </Text>
+            </View>
+          </View>
+        </ScrollView>
       )}
 
-      {/* Título de produtos */}
+      {/* Título */}
       <Text style={styles.title}>
         {category ? `Produtos de ${category}` : "Todos os Produtos"}
       </Text>
 
-      {/* Botão admin */}
+      {/* Admin */}
       {isAdmin && (
         <TouchableOpacity
           style={styles.adminBtn}
@@ -177,31 +260,50 @@ export default function HomeScreen({ navigation }) {
         </TouchableOpacity>
       )}
 
-      {/* Produtos */}
+      {/* PRODUTOS */}
       <FlatList
         data={products}
         renderItem={renderProduct}
         keyExtractor={(item) => item.id.toString()}
         numColumns={2}
         columnWrapperStyle={{ justifyContent: "space-between" }}
-        scrollEnabled={false} // 👉 scroll quem faz é o ScrollView principal
+        scrollEnabled={false}
       />
     </ScrollView>
   );
 }
 
 // ---------------------
-// STYLES
+// ESTILOS
 // ---------------------
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 16, backgroundColor: "#111" },
+
+  // BANNERS
+  bannerContainer: { marginBottom: 20 },
   banner: {
     width: width - 32,
     height: 180,
-    borderRadius: 12,
+    borderRadius: 16,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: 16,
     marginRight: 12,
-    resizeMode: "cover",
   },
+  bannerLeft: { flex: 1, alignItems: "center" },
+  bannerRight: { flex: 2 },
+  bannerLogo: { width: 90, height: 90, resizeMode: "contain" },
+  bannerProduct: { width: 100, height: 100, borderRadius: 12, marginRight: 12 },
+  bannerTitle: {
+    fontSize: 20,
+    fontWeight: "bold",
+    color: "#fff",
+    marginBottom: 6,
+  },
+  bannerText: { fontSize: 14, color: "#ddd" },
+
+  // PRODUTOS
   title: { fontSize: 18, fontWeight: "bold", marginVertical: 10, color: "#fff" },
   card: {
     flex: 1,
@@ -218,6 +320,16 @@ const styles = StyleSheet.create({
   image: { width: 100, height: 100, borderRadius: 10, marginBottom: 8 },
   name: { fontSize: 14, fontWeight: "600", textAlign: "center", color: "#000" },
   price: { fontSize: 14, color: "#20c997", marginTop: 4 },
+  priceRow: { flexDirection: "row", alignItems: "center", marginTop: 4 },
+  oldPrice: {
+    fontSize: 12,
+    color: "#888",
+    textDecorationLine: "line-through",
+    marginRight: 6,
+  },
+  discountPrice: { fontSize: 14, fontWeight: "bold", color: "#e63946" },
+
+  // CATEGORIAS
   categoryBtn: {
     flex: 1,
     paddingVertical: 14,
@@ -226,14 +338,12 @@ const styles = StyleSheet.create({
     backgroundColor: "#333",
     marginHorizontal: 6,
     alignItems: "center",
-    shadowColor: "#000",
-    shadowOpacity: 0.15,
-    shadowRadius: 3,
-    elevation: 3,
   },
   categoryBtnActive: { backgroundColor: "#20c997" },
   categoryText: { fontSize: 14, color: "#aaa" },
   categoryTextActive: { color: "#fff", fontWeight: "bold" },
+
+  // ADMIN
   adminBtn: {
     backgroundColor: "#20c997",
     padding: 12,
@@ -242,7 +352,4 @@ const styles = StyleSheet.create({
     marginVertical: 12,
   },
   adminBtnText: { color: "#fff", fontSize: 16, fontWeight: "bold" },
-  priceRow: { flexDirection: "row", alignItems: "center", marginTop: 4 },
-  oldPrice: { fontSize: 12, color: "#888", textDecorationLine: "line-through", marginRight: 6 },
-  discountPrice: { fontSize: 14, fontWeight: "bold", color: "#e63946" },
 });
