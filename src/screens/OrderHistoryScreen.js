@@ -59,8 +59,23 @@ export default function OrderHistoryScreen() {
 
   const renderOrder = ({ item }) => (
     <View style={styles.orderCard}>
-      <Text style={styles.orderDate}>Pedido: {new Date(item.created_at).toLocaleString()}</Text>
-      <Text style={styles.orderStatus}>Status: {item.status}</Text>
+      <View style={styles.headerRow}>
+        <Text style={styles.orderDate}>
+          Pedido: {new Date(item.created_at).toLocaleString()}
+        </Text>
+        <Text
+          style={[
+            styles.orderStatus,
+            item.status === "Entregue"
+              ? styles.statusDelivered
+              : item.status === "Pendente"
+              ? styles.statusPending
+              : styles.statusDefault,
+          ]}
+        >
+          {item.status}
+        </Text>
+      </View>
 
       <FlatList
         data={item.order_items}
@@ -73,31 +88,86 @@ export default function OrderHistoryScreen() {
     </View>
   );
 
-  if (loading) return <ActivityIndicator size="large" style={{ flex: 1, justifyContent: "center" }} />;
+  if (loading)
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#00ffcc" />
+      </View>
+    );
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Histórico de Pedidos</Text>
+      <Text style={styles.title}> Histórico de Pedidos</Text>
+
       <FlatList
         data={orders}
         keyExtractor={(item) => item.id.toString()}
         renderItem={renderOrder}
-        ListEmptyComponent={<Text style={{ textAlign: "center", marginTop: 20 }}>Nenhum pedido encontrado.</Text>}
+        ListEmptyComponent={
+          <Text style={styles.emptyText}>Nenhum pedido encontrado.</Text>
+        }
       />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#fff", padding: 16 },
-  title: { fontSize: 22, fontWeight: "bold", marginBottom: 12 },
-  orderCard: { borderWidth: 1, borderColor: "#ddd", borderRadius: 8, padding: 12, marginBottom: 12, backgroundColor: "#f9f9f9" },
-  orderDate: { fontWeight: "600", marginBottom: 4 },
-  orderStatus: { marginBottom: 8, color: "#555" },
-  orderTotal: { fontWeight: "bold", marginTop: 8, fontSize: 16 },
-  orderItem: { flexDirection: "row", marginBottom: 8, backgroundColor: "#fff", padding: 6, borderRadius: 6 },
-  productImage: { width: 50, height: 50, borderRadius: 6 },
-  productName: { fontSize: 14, fontWeight: "600" },
-  productQty: { fontSize: 12, color: "#555" },
-  productPrice: { fontSize: 12, fontWeight: "bold", color: "#20c997" },
+  container: { flex: 1, backgroundColor: "#000", padding: 16 },
+  loadingContainer: { flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: "#000" },
+  title: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "#fff",
+    textAlign: "center",
+    marginBottom: 16,
+  },
+  orderCard: {
+    backgroundColor: "#1a1a1a",
+    borderRadius: 12,
+    padding: 14,
+    marginBottom: 14,
+    shadowColor: "#00ffcc",
+    shadowOpacity: 0.25,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 6,
+    elevation: 3,
+  },
+  headerRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 8,
+  },
+  orderDate: { fontWeight: "600", color: "#ccc", fontSize: 13 },
+  orderStatus: {
+    fontWeight: "bold",
+    fontSize: 13,
+    paddingVertical: 2,
+    paddingHorizontal: 8,
+    borderRadius: 8,
+    textTransform: "capitalize",
+  },
+  statusDelivered: { backgroundColor: "#00ffcc20", color: "#00ffcc" },
+  statusPending: { backgroundColor: "#ffaa0020", color: "#ffaa00" },
+  statusDefault: { backgroundColor: "#444", color: "#fff" },
+  orderTotal: {
+    fontWeight: "bold",
+    fontSize: 16,
+    color: "#00ffcc",
+    textAlign: "right",
+    marginTop: 6,
+  },
+  orderItem: {
+    flexDirection: "row",
+    marginBottom: 8,
+    backgroundColor: "#111",
+    padding: 8,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "#222",
+  },
+  productImage: { width: 55, height: 55, borderRadius: 8 },
+  productName: { fontSize: 14, fontWeight: "600", color: "#fff" },
+  productQty: { fontSize: 12, color: "#aaa", marginTop: 2 },
+  productPrice: { fontSize: 13, fontWeight: "bold", color: "#00ffcc", marginTop: 4 },
+  emptyText: { color: "#888", textAlign: "center", marginTop: 40 },
 });

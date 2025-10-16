@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, FlatList, StyleSheet, TouchableOpacity, Alert } from "react-native";
+import { View, Text, FlatList, StyleSheet, TouchableOpacity, Alert, TextInput } from "react-native";
 import { supabase } from "../lib/supabase";
 
 export default function CheckoutScreen({ navigation }) {
   const [cartItems, setCartItems] = useState([]);
   const [total, setTotal] = useState(0);
+  const [coupon, setCoupon] = useState("");
+  const [discount, setDiscount] = useState(0);
 
   useEffect(() => {
     fetchCart();
@@ -46,9 +48,31 @@ export default function CheckoutScreen({ navigation }) {
     return product.price;
   };
 
-  const calcTotal = (items) => {
+  const calcTotal = (items, appliedDiscount = discount) => {
     const sum = items.reduce((acc, item) => acc + item.quantity * getFinalPrice(item.products), 0);
-    setTotal(sum);
+    const finalValue = sum * (1 - appliedDiscount / 100);
+    setTotal(finalValue);
+  };
+
+  // ---------------------
+  // CUPOM DE DESCONTO
+  // ---------------------
+  const handleApplyCoupon = () => {
+    const code = coupon.trim().toUpperCase();
+
+    if (code === "DESCONTO10") {
+      setDiscount(10);
+      calcTotal(cartItems, 10);
+      Alert.alert("Cupom aplicado!", "Você ganhou 10% de desconto 🎉");
+    } else if (code === "FRETEGRATIS") {
+      setDiscount(5);
+      calcTotal(cartItems, 5);
+      Alert.alert("Cupom aplicado!", "5% de desconto equivalente ao frete grátis!");
+    } else if (code === "") {
+      Alert.alert("Aviso", "Digite um código de cupom válido.");
+    } else {
+      Alert.alert("Cupom inválido", "Esse código não existe ou expirou.");
+    }
   };
 
   // ---------------------
@@ -67,10 +91,9 @@ export default function CheckoutScreen({ navigation }) {
     }
 
     try {
-      // 1️⃣ Cria pedido na tabela orders
       const { data: orderData, error: orderError } = await supabase
         .from("orders")
-        .insert([{ user_id: user.id, total, status: "pending" }])
+        .insert([{ user_id: user.id, total, status: "Pendente" }])
         .select("id")
         .single();
 
@@ -82,12 +105,11 @@ export default function CheckoutScreen({ navigation }) {
 
       const orderId = orderData.id;
 
-      // 2️⃣ Salva itens do pedido na tabela order_items
       const itemsPayload = cartItems.map(item => ({
         order_id: orderId,
         product_id: item.products.id,
         quantity: item.quantity,
-        price: getFinalPrice(item.products)
+        price: getFinalPrice(item.products),
       }));
 
       const { error: itemsError } = await supabase
@@ -100,7 +122,6 @@ export default function CheckoutScreen({ navigation }) {
         return;
       }
 
-      // 3️⃣ Limpa carrinho
       await supabase.from("cart").delete().eq("user_id", user.id);
 
       Alert.alert("Sucesso", "Pedido confirmado com sucesso!");
@@ -125,33 +146,86 @@ export default function CheckoutScreen({ navigation }) {
     </View>
   );
 
+  // ---------------------
+  // JSX
+  // ---------------------
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Resumo da Compra</Text>
+      <Text style={styles.title}> Resumo da Compra</Text>
 
       <FlatList
         data={cartItems}
         keyExtractor={(item) => item.id.toString()}
         renderItem={renderItem}
-        ListEmptyComponent={<Text style={{ textAlign: "center", marginTop: 20 }}>Seu carrinho está vazio.</Text>}
+        ListEmptyComponent={<Text style={styles.emptyText}>Seu carrinho está vazio.</Text>}
       />
 
       <Text style={styles.total}>Total: R$ {total.toFixed(2)}</Text>
 
+      <View style={styles.couponRow}>
+        <TextInput
+          placeholder="Insira seu cupom"
+          placeholderTextColor="#888"
+          style={styles.couponInput}
+          value={coupon}
+          onChangeText={setCoupon}
+        />
+        <TouchableOpacity style={styles.couponBtn} onPress={handleApplyCoupon}>
+          <Text style={styles.couponBtnText}>Aplicar</Text>
+        </TouchableOpacity>
+      </View>
+
       <TouchableOpacity style={styles.btn} onPress={handleConfirmOrder}>
-        <Text style={styles.btnText}>Confirmar Pedido</Text>
+        <Text style={styles.btnText}>Finalizar Pedido</Text>
       </TouchableOpacity>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 16, backgroundColor: "#fff" },
-  title: { fontSize: 22, fontWeight: "bold", marginBottom: 12, color: "#111" },
-  item: { flexDirection: "row", justifyContent: "space-between", marginBottom: 12, padding: 10, backgroundColor: "#f9f9f9", borderRadius: 8 },
-  name: { fontSize: 16, fontWeight: "500" },
-  price: { fontSize: 16, fontWeight: "600", color: "#20c997" },
-  total: { fontSize: 18, fontWeight: "bold", marginVertical: 20, textAlign: "right" },
-  btn: { backgroundColor: "#20c997", padding: 14, borderRadius: 8, alignItems: "center" },
-  btnText: { color: "#fff", fontSize: 16, fontWeight: "bold" },
+  container: { flex: 1, padding: 16, backgroundColor: "#000" },
+  title: { fontSize: 24, fontWeight: "bold", color: "#fff", textAlign: "center", marginBottom: 20 },
+  item: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 12,
+    padding: 10,
+    backgroundColor: "#1a1a1a",
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: "#222",
+  },
+  name: { fontSize: 16, fontWeight: "500", color: "#fff" },
+  price: { fontSize: 16, fontWeight: "bold", color: "#00ffcc" },
+  total: { fontSize: 18, fontWeight: "bold", color: "#00ffcc", marginVertical: 20, textAlign: "right" },
+  couponRow: { flexDirection: "row", alignItems: "center", marginBottom: 20 },
+  couponInput: {
+    flex: 1,
+    backgroundColor: "#111",
+    color: "#fff",
+    padding: 12,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "#333",
+    marginRight: 10,
+  },
+  couponBtn: {
+    backgroundColor: "#00ffcc",
+    paddingVertical: 12,
+    paddingHorizontal: 18,
+    borderRadius: 8,
+  },
+  couponBtnText: { color: "#000", fontWeight: "bold", fontSize: 14 },
+  btn: {
+    backgroundColor: "#00ffcc",
+    padding: 16,
+    borderRadius: 10,
+    alignItems: "center",
+    shadowColor: "#00ffcc",
+    shadowOpacity: 0.4,
+    shadowOffset: { width: 0, height: 3 },
+    shadowRadius: 6,
+  },
+  btnText: { color: "#000", fontSize: 16, fontWeight: "bold" },
+  emptyText: { color: "#888", textAlign: "center", marginTop: 40 },
 });

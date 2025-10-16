@@ -122,9 +122,6 @@ export default function LoginScreen({ navigation }) {
             <TouchableOpacity style={styles.socialButton} onPress={() => Alert.alert('Facebook login')}>
               <FontAwesome name="facebook-square" size={24} color="#3b5998" />
             </TouchableOpacity>
-            <TouchableOpacity style={styles.socialButton} onPress={() => Alert.alert('Apple login')}>
-              <AntDesign name="apple1" size={24} color="#000" />
-            </TouchableOpacity>
             <TouchableOpacity style={styles.socialButton} onPress={() => Alert.alert('Google login')}>
               <AntDesign name="google" size={24} color="#DB4437" />
             </TouchableOpacity>

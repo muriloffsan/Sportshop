@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react"; 
+import React, { useEffect, useState } from "react";
 import { View, Text, FlatList, Image, TouchableOpacity, StyleSheet, Alert } from "react-native";
 import { supabase } from "../lib/supabase";
 import { useNavigation } from "@react-navigation/native";
@@ -12,9 +12,6 @@ export default function CartScreen() {
     fetchCart();
   }, []);
 
-  // ---------------------
-  // FETCH CART
-  // ---------------------
   const fetchCart = async () => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
@@ -37,9 +34,6 @@ export default function CartScreen() {
     calcTotal(items);
   };
 
-  // ---------------------
-  // CALC TOTAL CONSIDERANDO PROMOÇÃO
-  // ---------------------
   const calcTotal = (items) => {
     const now = new Date();
     const sum = items.reduce((acc, item) => {
@@ -49,13 +43,9 @@ export default function CartScreen() {
       }
       return acc + price * item.quantity;
     }, 0);
-
     setTotal(sum);
   };
 
-  // ---------------------
-  // UPDATE QUANTITY / REMOVE ITEM
-  // ---------------------
   const updateQuantity = async (item, newQty) => {
     if (newQty <= 0) {
       removeItem(item);
@@ -75,22 +65,15 @@ export default function CartScreen() {
     if (!error) fetchCart();
   };
 
-  // ---------------------
-  // HANDLE CHECKOUT
-  // ---------------------
   const handleCheckout = () => {
     if (cartItems.length === 0) {
       Alert.alert("Aviso", "Seu carrinho está vazio.");
       return;
     }
 
-    // Navegando para a tela correta
     navigation.navigate("Checkout", { cartItems, total });
   };
 
-  // ---------------------
-  // RENDER ITEM
-  // ---------------------
   const renderItem = ({ item }) => {
     const now = new Date();
     let price = item.products.price;
@@ -118,14 +101,14 @@ export default function CartScreen() {
 
           <View style={styles.qtyRow}>
             <TouchableOpacity onPress={() => updateQuantity(item, item.quantity - 1)} style={styles.qtyBtn}>
-              <Text>-</Text>
+              <Text style={styles.qtyBtnText}>−</Text>
             </TouchableOpacity>
             <Text style={styles.qty}>{item.quantity}</Text>
             <TouchableOpacity onPress={() => updateQuantity(item, item.quantity + 1)} style={styles.qtyBtn}>
-              <Text>+</Text>
+              <Text style={styles.qtyBtnText}>+</Text>
             </TouchableOpacity>
             <TouchableOpacity onPress={() => removeItem(item)} style={styles.removeBtn}>
-              <Text style={{ color: "red" }}>Remover</Text>
+              <Text style={styles.removeText}>Remover</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -133,18 +116,15 @@ export default function CartScreen() {
     );
   };
 
-  // ---------------------
-  // JSX
-  // ---------------------
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Meu Carrinho</Text>
+      <Text style={styles.title}>Seu Carrinho</Text>
 
       <FlatList
         data={cartItems}
         keyExtractor={(item) => item.id.toString()}
         renderItem={renderItem}
-        ListEmptyComponent={<Text style={{ textAlign: "center" }}>Seu carrinho está vazio.</Text>}
+        ListEmptyComponent={<Text style={styles.emptyText}>Seu carrinho está vazio.</Text>}
       />
 
       <View style={styles.footer}>
@@ -157,25 +137,57 @@ export default function CartScreen() {
   );
 }
 
-// ---------------------
-// STYLES
-// ---------------------
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 16, backgroundColor: "#fff" },
-  title: { fontSize: 22, fontWeight: "bold", marginBottom: 12 },
-  item: { flexDirection: "row", marginBottom: 12, backgroundColor: "#f9f9f9", padding: 10, borderRadius: 8 },
-  image: { width: 60, height: 60, borderRadius: 8 },
-  name: { fontSize: 16, fontWeight: "600" },
-  price: { fontSize: 14, color: "#20c997", marginVertical: 4 },
+  container: { flex: 1, padding: 16, backgroundColor: "#000" },
+  title: { fontSize: 24, fontWeight: "bold", color: "#fff", marginBottom: 16, textAlign: "center" },
+  item: {
+    flexDirection: "row",
+    marginBottom: 14,
+    backgroundColor: "#1a1a1a",
+    padding: 12,
+    borderRadius: 12,
+    shadowColor: "#00ffcc",
+    shadowOpacity: 0.2,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 6,
+    elevation: 3,
+  },
+  image: { width: 70, height: 70, borderRadius: 8 },
+  name: { fontSize: 16, fontWeight: "600", color: "#fff" },
+  price: { fontSize: 14, color: "#00ffcc", marginVertical: 4 },
   priceRow: { flexDirection: "row", alignItems: "center", marginTop: 4 },
   oldPrice: { fontSize: 12, color: "#888", textDecorationLine: "line-through", marginRight: 6 },
-  discountPrice: { fontSize: 14, fontWeight: "bold", color: "#e63946" },
-  qtyRow: { flexDirection: "row", alignItems: "center", marginTop: 6 },
-  qtyBtn: { padding: 6, borderWidth: 1, borderRadius: 6, marginHorizontal: 4 },
-  qty: { fontSize: 16, fontWeight: "bold" },
-  removeBtn: { marginLeft: 10 },
-  footer: { borderTopWidth: 1, borderColor: "#ddd", paddingTop: 12, marginTop: 12 },
-  total: { fontSize: 18, fontWeight: "bold", marginBottom: 8 },
-  checkoutBtn: { backgroundColor: "#20c997", padding: 14, borderRadius: 8, alignItems: "center" },
-  checkoutText: { color: "#fff", fontWeight: "bold", fontSize: 16 },
+  discountPrice: { fontSize: 14, fontWeight: "bold", color: "#ff4b5c" },
+  qtyRow: { flexDirection: "row", alignItems: "center", marginTop: 8 },
+  qtyBtn: {
+    paddingVertical: 4,
+    paddingHorizontal: 10,
+    borderWidth: 1,
+    borderColor: "#00ffcc",
+    borderRadius: 8,
+  },
+  qtyBtnText: { color: "#00ffcc", fontSize: 18, fontWeight: "bold" },
+  qty: { fontSize: 16, fontWeight: "bold", color: "#fff", marginHorizontal: 8 },
+  removeBtn: { marginLeft: 12 },
+  removeText: { color: "#ff4b5c", fontSize: 13 },
+  emptyText: { color: "#aaa", textAlign: "center", marginTop: 40 },
+  footer: {
+    borderTopWidth: 1,
+    borderColor: "#222",
+    paddingTop: 12,
+    marginTop: 16,
+  },
+  total: { fontSize: 18, fontWeight: "bold", color: "#fff", marginBottom: 10, textAlign: "center" },
+  checkoutBtn: {
+    backgroundColor: "#00ffcc",
+    padding: 14,
+    borderRadius: 10,
+    alignItems: "center",
+    shadowColor: "#00ffcc",
+    shadowOpacity: 0.4,
+    shadowOffset: { width: 0, height: 3 },
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  checkoutText: { color: "#000", fontWeight: "bold", fontSize: 16 },
 });
