@@ -117,15 +117,15 @@ export default function LoginScreen({ navigation }) {
       {/* LOGIN SOCIAL COM ÍCONES REDONDOS */}
       {!isForgotPassword && (
         <View style={{ alignItems: 'center', marginBottom: 20 }}>
-          <Text style={styles.socialText}>Or continue with</Text>
+          <Text style={styles.socialText}>Ou cadastre-se com</Text>
           <View style={styles.socialRow}>
-            <TouchableOpacity style={styles.socialButton} onPress={() => Alert.alert('Facebook login')}>
+            <TouchableOpacity style={styles.socialButton} onPress={() => navigation.navigate('SignUp')}>
               <FontAwesome name="facebook-square" size={24} color="#3b5998" />
             </TouchableOpacity>
-            <TouchableOpacity style={styles.socialButton} onPress={() => Alert.alert('Google login')}>
+            <TouchableOpacity style={styles.socialButton} onPress={() => navigation.navigate('SignUp')}>
               <AntDesign name="google" size={24} color="#DB4437" />
             </TouchableOpacity>
-            <TouchableOpacity style={styles.socialButton} onPress={() => Alert.alert('Twitter login')}>
+            <TouchableOpacity style={styles.socialButton} onPress={() => navigation.navigate('SignUp')}>
               <FontAwesome name="twitter-square" size={24} color="#1DA1F2" />
             </TouchableOpacity>
           </View>
