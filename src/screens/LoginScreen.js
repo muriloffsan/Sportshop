@@ -30,12 +30,37 @@ export default function LoginScreen({ navigation }) {
         password: password.trim(),
       });
 
-      console.log("Resultado login:", { data, error });
-
       if (error) {
         Alert.alert("Erro", error.message);
+        return;
+      }
+
+      const user = data?.user;
+      if (!user) {
+        Alert.alert("Erro", "Usuário não encontrado.");
+        return;
+      }
+
+      // 🔍 Busca role apenas para quem está na tabela profiles
+      const { data: profile, error: roleError } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', user.id)
+        .maybeSingle();
+
+      if (roleError) console.log("Erro ao buscar role:", roleError);
+
+      const role = profile?.role || 'user';
+
+      console.log("Usuário logado:", user.email, "Role:", role);
+
+      // 🚀 Redirecionamento conforme role
+      if (role === 'admin') {
+        navigation.replace('Home'); // Admin vai pra Home
+      } else if (role === 'entregador') {
+        navigation.replace('Postal'); // Crie ou já tenha essa tela
       } else {
-        navigation.replace("Home");
+        navigation.replace('Home'); // Usuário padrão vai pra Home
       }
     } catch (err) {
       console.error("Erro inesperado:", err);
@@ -50,18 +75,14 @@ export default function LoginScreen({ navigation }) {
     }
 
     const { error } = await supabase.auth.resetPasswordForEmail(email);
-
-    if (error) {
-      Alert.alert('Erro', error.message);
-    } else {
+    if (error) Alert.alert('Erro', error.message);
+    else {
       Alert.alert('Sucesso', `Um link de redefinição foi enviado para ${email}`);
       setIsForgotPassword(false);
     }
   };
 
-  const handleTermsPress = () => {
-    Linking.openURL('https://www.exemplo.com/termos');
-  };
+  const handleTermsPress = () => Linking.openURL('https://www.exemplo.com/termos');
 
   return (
     <View style={styles.container}>
@@ -97,10 +118,7 @@ export default function LoginScreen({ navigation }) {
         </Text>
       </TouchableOpacity>
 
-      <TouchableOpacity
-        style={styles.btn}
-        onPress={handleLogin}
-      >
+      <TouchableOpacity style={styles.btn} onPress={handleLogin}>
         <Text style={styles.btnText}>
           {isForgotPassword ? 'Redefinir senha' : 'Log in'}
         </Text>
@@ -114,7 +132,7 @@ export default function LoginScreen({ navigation }) {
 
       <View style={styles.divider} />
 
-      {/* LOGIN SOCIAL COM ÍCONES REDONDOS */}
+      {/* LOGIN SOCIAL */}
       {!isForgotPassword && (
         <View style={{ alignItems: 'center', marginBottom: 20 }}>
           <Text style={styles.socialText}>Ou cadastre-se com</Text>
@@ -155,12 +173,7 @@ const styles = StyleSheet.create({
   socialText: { color: '#aaa', marginBottom: 10, fontSize: 14 },
   socialRow: { flexDirection: 'row', justifyContent: 'center' },
   socialButton: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    backgroundColor: '#222',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginHorizontal: 8,
+    width: 50, height: 50, borderRadius: 25,
+    backgroundColor: '#222', justifyContent: 'center', alignItems: 'center', marginHorizontal: 8,
   },
 });

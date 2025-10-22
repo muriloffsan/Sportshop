@@ -17,6 +17,7 @@ import CheckoutScreen from './src/screens/CheckoutScreen.js';
 import OrderHistoryScreen from './src/screens/OrderHistoryScreen.js';
 import PromoAdmin from './src/screens/PromoAdmin';
 import FavoritesScreen from './src/screens/FavoritesScreen.js';
+import PostalScreen from './src/screens/PostalScreen.js';
 
 ExpoSplashScreen.preventAutoHideAsync();
 const Stack = createNativeStackNavigator();
@@ -126,6 +127,14 @@ export default function App() {
             component={ProductDetailsScreen}
             options={{
               headerTitle: 'Detalhes do Produto',
+              headerLeft: () => <BackButton />,
+            }}
+          />
+          <Stack.Screen
+            name="Postal"
+            component={PostalScreen}
+            options={{
+              headerTitle: 'Área do Entregador',
               headerLeft: () => <BackButton />,
             }}
           />
