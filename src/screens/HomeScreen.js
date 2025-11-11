@@ -123,13 +123,30 @@ useEffect(() => {
     const onPromo = isOnPromotion(item);
 
     return (
-      <TouchableOpacity
-        style={styles.card}
-        onPress={() => navigation.navigate("ProductDetails", { product: item })}
-      >
-        <Image source={{ uri: item.image_url }} style={styles.image} />
-        <Text style={styles.name}>{item.name}</Text>
+      <View style={styles.card}>
+        {/* Selo de promoção */}
+        {onPromo && (
+          <View style={styles.promoTag}>
+            <Text style={styles.promoText}>Promoção</Text>
+          </View>
+        )}
 
+        {/* Imagem do produto */}
+        <TouchableOpacity
+          onPress={() =>
+            navigation.navigate("ProductDetails", { product: item })
+          }
+          style={styles.imageContainer}
+        >
+          <Image source={{ uri: item.image_url }} style={styles.image} />
+        </TouchableOpacity>
+
+        {/* Nome */}
+        <Text style={styles.name} numberOfLines={1}>
+          {item.name}
+        </Text>
+
+        {/* Preços */}
         {onPromo ? (
           <View style={styles.priceRow}>
             <Text style={styles.oldPrice}>R$ {item.price.toFixed(2)}</Text>
@@ -138,9 +155,20 @@ useEffect(() => {
         ) : (
           <Text style={styles.price}>R$ {finalPrice.toFixed(2)}</Text>
         )}
-      </TouchableOpacity>
+
+        {/* Botão de comprar */}
+        <TouchableOpacity
+          style={styles.buyButton}
+          onPress={() =>
+            navigation.navigate("ProductDetails", { product: item, buy: true })
+          }
+        >
+          <Text style={styles.buyButtonText}>Comprar</Text>
+        </TouchableOpacity>
+      </View>
     );
   };
+
 
   // ---------------------
   // JSX
@@ -352,4 +380,46 @@ const styles = StyleSheet.create({
     marginVertical: 12,
   },
   adminBtnText: { color: "#fff", fontSize: 16, fontWeight: "bold" },
+
+  promoTag: {
+  position: "absolute",
+  top: 8,
+  left: 8,
+  backgroundColor: "#e63946",
+  paddingVertical: 3,
+  paddingHorizontal: 8,
+  borderRadius: 8,
+  zIndex: 2,
+},
+promoText: {
+  color: "#fff",
+  fontSize: 10,
+  fontWeight: "bold",
+  textTransform: "uppercase",
+},
+imageContainer: {
+  width: "100%",
+  alignItems: "center",
+  marginBottom: 8,
+},
+buyButton: {
+  backgroundColor: "#20c997",
+  paddingVertical: 8,
+  paddingHorizontal: 16,
+  borderRadius: 10,
+  marginTop: 8,
+  width: "80%",
+  alignItems: "center",
+  alignSelf: "center",
+  shadowColor: "#000",
+  shadowOpacity: 0.25,
+  shadowRadius: 4,
+  elevation: 4,
+},
+buyButtonText: {
+  color: "#fff",
+  fontWeight: "bold",
+  fontSize: 14,
+},
+
 });
