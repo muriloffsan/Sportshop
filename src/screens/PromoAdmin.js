@@ -59,6 +59,23 @@ export default function PromoAdmin({ navigation }) {
       Alert.alert("Erro", "Não foi possível aplicar a promoção.");
       return;
     }
+    // Cria registro na tabela de promoções
+    const { error: promoError } = await supabase
+      .from("promotions")
+      .insert([
+        {
+          product_id: selectedProduct.id,
+          discount: numericDiscount,
+          start_date: new Date().toISOString(),
+          end_date: promoUntil.toISOString(),
+          is_active: true,
+        },
+      ]);
+    if (promoError) {
+      console.error(promoError);
+      Alert.alert("Aviso", "Promoção aplicada ao produto, mas não foi possível salvar no histórico de promoções.");
+    }
+
 
     Alert.alert("Sucesso", `Promoção aplicada ao produto "${selectedProduct.name}"!`);
     setSelectedProduct(null);
