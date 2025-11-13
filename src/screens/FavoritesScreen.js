@@ -104,7 +104,7 @@ export default function FavoritesScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#111",
+    backgroundColor: "#000", // fundo mais escuro
     padding: 16,
   },
   list: {
@@ -112,35 +112,44 @@ const styles = StyleSheet.create({
   },
   card: {
     flexDirection: "row",
-    backgroundColor: "#222",
-    borderRadius: 12,
-    padding: 12,
-    marginBottom: 12,
+    backgroundColor: "#1a1a1a", // contraste com o fundo
+    borderRadius: 14,
+    padding: 14,
+    marginBottom: 14,
     alignItems: "center",
+    shadowColor: "#00ffcc",
+    shadowOpacity: 0.2,
+    shadowOffset: { width: 0, height: 3 },
+    shadowRadius: 6,
+    elevation: 4,
+    borderWidth: 1,
+    borderColor: "#00ffcc20", // borda sutil para destaque
   },
   image: {
     width: 70,
     height: 70,
-    borderRadius: 8,
+    borderRadius: 10,
   },
   info: {
-    marginLeft: 12,
+    marginLeft: 14,
     flex: 1,
   },
   name: {
     fontSize: 16,
-    fontWeight: "bold",
+    fontWeight: "700",
     color: "#fff",
   },
   price: {
     fontSize: 14,
-    color: "#0f0",
-    marginTop: 4,
+    fontWeight: "600",
+    color: "#00ffcc", // destaque para preço sem ficar agressivo
+    marginTop: 6,
   },
   empty: {
     fontSize: 16,
-    color: "#aaa",
+    color: "#888",
     textAlign: "center",
     marginTop: 50,
   },
 });
+

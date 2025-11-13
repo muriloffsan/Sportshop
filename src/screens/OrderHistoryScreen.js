@@ -97,7 +97,7 @@ export default function OrderHistoryScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}> Histórico de Pedidos</Text>
+
 
       <FlatList
         data={orders}
@@ -112,62 +112,109 @@ export default function OrderHistoryScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#000", padding: 16 },
-  loadingContainer: { flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: "#000" },
+  container: {
+    flex: 1,
+    backgroundColor: "#000",
+    padding: 16,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#000",
+  },
   title: {
-    fontSize: 24,
+    fontSize: 26,
     fontWeight: "bold",
-    color: "#fff",
+    color: "#00ffcc",
     textAlign: "center",
     marginBottom: 16,
   },
   orderCard: {
-    backgroundColor: "#1a1a1a",
-    borderRadius: 12,
-    padding: 14,
-    marginBottom: 14,
+    backgroundColor: "#121212",
+    borderRadius: 14,
+    padding: 16,
+    marginBottom: 16,
     shadowColor: "#00ffcc",
-    shadowOpacity: 0.25,
-    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowOffset: { width: 0, height: 3 },
     shadowRadius: 6,
-    elevation: 3,
+    elevation: 5,
+    borderWidth: 1,
+    borderColor: "#00ffcc20",
   },
   headerRow: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginBottom: 8,
+    marginBottom: 10,
   },
-  orderDate: { fontWeight: "600", color: "#ccc", fontSize: 13 },
-  orderStatus: {
-    fontWeight: "bold",
+  orderDate: {
+    fontWeight: "600",
+    color: "#ccc",
     fontSize: 13,
-    paddingVertical: 2,
-    paddingHorizontal: 8,
-    borderRadius: 8,
-    textTransform: "capitalize",
   },
-  statusDelivered: { backgroundColor: "#00ffcc20", color: "#00ffcc" },
-  statusPending: { backgroundColor: "#ffaa0020", color: "#ffaa00" },
-  statusDefault: { backgroundColor: "#444", color: "#fff" },
+  orderStatus: {
+    fontWeight: "700",
+    fontSize: 13,
+    paddingVertical: 4,
+    paddingHorizontal: 10,
+    borderRadius: 12,
+    textTransform: "capitalize",
+    overflow: "hidden",
+  },
+  statusDelivered: {
+    backgroundColor: "#00ffcc33",
+    color: "#00ffcc",
+  },
+  statusPending: {
+    backgroundColor: "#ffaa0033",
+    color: "#ffaa00",
+  },
+  statusDefault: {
+    backgroundColor: "#444",
+    color: "#fff",
+  },
   orderTotal: {
     fontWeight: "bold",
     fontSize: 16,
     color: "#00ffcc",
     textAlign: "right",
-    marginTop: 6,
+    marginTop: 10,
   },
   orderItem: {
     flexDirection: "row",
-    marginBottom: 8,
-    backgroundColor: "#111",
-    padding: 8,
-    borderRadius: 8,
+    marginBottom: 10,
+    backgroundColor: "#1b1b1b",
+    padding: 10,
+    borderRadius: 10,
     borderWidth: 1,
-    borderColor: "#222",
+    borderColor: "#333",
   },
-  productImage: { width: 55, height: 55, borderRadius: 8 },
-  productName: { fontSize: 14, fontWeight: "600", color: "#fff" },
-  productQty: { fontSize: 12, color: "#aaa", marginTop: 2 },
-  productPrice: { fontSize: 13, fontWeight: "bold", color: "#00ffcc", marginTop: 4 },
-  emptyText: { color: "#888", textAlign: "center", marginTop: 40 },
+  productImage: {
+    width: 55,
+    height: 55,
+    borderRadius: 8,
+  },
+  productName: {
+    fontSize: 15,
+    fontWeight: "600",
+    color: "#fff",
+  },
+  productQty: {
+    fontSize: 13,
+    color: "#aaa",
+    marginTop: 2,
+  },
+  productPrice: {
+    fontSize: 14,
+    fontWeight: "bold",
+    color: "#00ffcc",
+    marginTop: 4,
+  },
+  emptyText: {
+    color: "#888",
+    textAlign: "center",
+    marginTop: 50,
+    fontSize: 16,
+  },
 });
