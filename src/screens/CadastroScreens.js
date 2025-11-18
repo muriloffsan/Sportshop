@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image, Alert, Linking } from 'react-native';
 import { Ionicons, FontAwesome, AntDesign } from '@expo/vector-icons';
 import { supabase } from '../lib/supabase';
+import XIcon from "../../assets/XIcone.png"
 
 export default function SignUpScreen({ navigation }) {
   const [email, setEmail] = useState('');
@@ -102,9 +103,13 @@ export default function SignUpScreen({ navigation }) {
           <TouchableOpacity style={styles.socialButton} onPress={() => Alert.alert('Google signup')}>
             <AntDesign name="google" size={24} color="#DB4437" />
           </TouchableOpacity>
-          <TouchableOpacity style={styles.socialButton} onPress={() => Alert.alert('Twitter signup')}>
-            <FontAwesome name="twitter-square" size={24} color="#1DA1F2" />
-          </TouchableOpacity>
+          <TouchableOpacity style={styles.socialButton} onPress={() => navigation.navigate('SignUp')}>
+                        <Image
+                          source={XIcon}
+                          style={{ width: 24, height: 24, }} // pode remover tintColor se quiser ele original
+                          resizeMode="contain"
+                        />
+                      </TouchableOpacity>
         </View>
       </View>
 
