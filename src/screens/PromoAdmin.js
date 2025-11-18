@@ -8,7 +8,9 @@ import {
   TextInput, 
   StyleSheet, 
   Alert, 
-  Image 
+  Image,
+  SafeAreaView,
+  Platform
 } from "react-native";
 import { supabase } from "../lib/supabase";
 import DateTimePicker from "@react-native-community/datetimepicker";
@@ -59,7 +61,8 @@ export default function PromoAdmin({ navigation }) {
       Alert.alert("Erro", "Não foi possível aplicar a promoção.");
       return;
     }
-    // Cria registro na tabela de promoções
+
+    // REGISTRO NA TABELA PROMOTIONS
     const { error: promoError } = await supabase
       .from("promotions")
       .insert([
@@ -71,11 +74,11 @@ export default function PromoAdmin({ navigation }) {
           is_active: true,
         },
       ]);
+
     if (promoError) {
       console.error(promoError);
-      Alert.alert("Aviso", "Promoção aplicada ao produto, mas não foi possível salvar no histórico de promoções.");
+      Alert.alert("Aviso", "Promoção aplicada, mas não foi possível salvar no histórico.");
     }
-
 
     Alert.alert("Sucesso", `Promoção aplicada ao produto "${selectedProduct.name}"!`);
     setSelectedProduct(null);
@@ -83,9 +86,6 @@ export default function PromoAdmin({ navigation }) {
     fetchProducts();
   };
 
-  // ------------------
-  // Renderiza os cards
-  // ------------------
   const renderProductItem = ({ item }) => (
     <TouchableOpacity
       style={[
@@ -98,129 +98,187 @@ export default function PromoAdmin({ navigation }) {
         source={{ uri: item.image_url }} 
         style={styles.productImage} 
       />
-      <Text style={styles.productName} numberOfLines={1}>
-        {item.name}
-      </Text>
-      <Text style={styles.productPrice}>R$ {item.price.toFixed(2)}</Text>
+
+      <View style={{ width: "100%" }}>
+        <Text style={styles.productName} numberOfLines={1}>{item.name}</Text>
+        <Text style={styles.productPrice}>R$ {item.price.toFixed(2)}</Text>
+      </View>
     </TouchableOpacity>
   );
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Escolha o produto para promoção</Text>
+    <SafeAreaView style={styles.safe}>
+      <View style={styles.container}>
 
-      {/* Lista horizontal de produtos */}
-      <FlatList
-        data={products}
-        keyExtractor={(item) => item.id.toString()}
-        renderItem={renderProductItem}
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        style={{ marginBottom: 20 }}
-      />
+        <Text style={styles.title}>Gerenciar Promoções</Text>
 
-      {/* Campo de desconto */}
-      <TextInput
-        placeholder="Desconto (%)"
-        placeholderTextColor="#aaa"
-        style={styles.input}
-        keyboardType="numeric"
-        value={discount}
-        onChangeText={setDiscount}
-      />
-
-      {/* Selecionar data */}
-      <TouchableOpacity
-        style={styles.dateBtn}
-        onPress={() => setShowDatePicker(true)}
-      >
-        <Text style={styles.dateBtnText}>
-          Expira em: {promoUntil.toLocaleDateString()}
-        </Text>
-      </TouchableOpacity>
-
-      {showDatePicker && (
-        <DateTimePicker
-          value={promoUntil}
-          mode="date"
-          display="default"
-          onChange={(event, date) => {
-            setShowDatePicker(false);
-            if (date) setPromoUntil(date);
-          }}
+        {/* Lista de produtos */}
+        <FlatList
+          data={products}
+          keyExtractor={(item) => item.id.toString()}
+          renderItem={renderProductItem}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={{ paddingBottom: 20 }}
+          style={{ marginBottom: 10 }}
         />
-      )}
 
-      {/* Botão de salvar */}
-      <TouchableOpacity style={styles.saveBtn} onPress={handleSavePromotion}>
-        <Text style={styles.saveBtnText}>Aplicar Promoção</Text>
-      </TouchableOpacity>
-    </View>
+        {/* Inputs */}
+        <View style={styles.box}>
+          <Text style={styles.label}>Desconto (%)</Text>
+          <TextInput
+            placeholder="Ex: 15"
+            placeholderTextColor="#666"
+            style={styles.input}
+            keyboardType="numeric"
+            value={discount}
+            onChangeText={setDiscount}
+          />
+
+          <Text style={styles.label}>Expira em</Text>
+
+          <TouchableOpacity 
+            style={styles.dateBtn}
+            onPress={() => setShowDatePicker(true)}
+          >
+            <Text style={styles.dateBtnText}>
+              {promoUntil.toLocaleDateString()}
+            </Text>
+          </TouchableOpacity>
+
+          {showDatePicker && (
+            <DateTimePicker
+              value={promoUntil}
+              mode="date"
+              display="default"
+              onChange={(event, date) => {
+                setShowDatePicker(false);
+                if (date) setPromoUntil(date);
+              }}
+            />
+          )}
+        </View>
+
+        {/* Botão */}
+        <TouchableOpacity style={styles.saveBtn} onPress={handleSavePromotion}>
+          <Text style={styles.saveBtnText}>Aplicar Promoção</Text>
+        </TouchableOpacity>
+
+      </View>
+    </SafeAreaView>
   );
 }
 
+// -------------------------
+// ESTILOS MODERNIZADOS
+// -------------------------
+
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 16, backgroundColor: "#111" },
-  title: { fontSize: 18, fontWeight: "bold", color: "#fff", marginBottom: 12 },
+  safe: {
+    flex: 1,
+    backgroundColor: "#0d0d0d",
+  },
+
+  container: {
+    flex: 1,
+    padding: 16,
+    paddingBottom: 30, // garante espaço para bottom tabs
+  },
+
+  title: {
+    color: "#fff",
+    fontSize: 20,
+    fontWeight: "700",
+    marginBottom: 14,
+  },
 
   // --- Cards ---
   productCard: {
-    width: 140,
-    marginHorizontal: 8,
-    backgroundColor: "#222",
-    borderRadius: 12,
-    padding: 10,
-    alignItems: "center",
+    width: 150,
+    backgroundColor: "#1a1a1a",
+    borderRadius: 14,
+    padding: 12,
+    marginRight: 12,
     shadowColor: "#000",
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 4,
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 6,
+    borderWidth: 1,
+    borderColor: "#222",
   },
   productCardActive: {
-    borderWidth: 2,
     borderColor: "#20c997",
-    backgroundColor: "#2a2a2a",
-  },
-  productImage: {
-    width: 100,
-    height: 100,
-    borderRadius: 10,
-    marginBottom: 8,
-    resizeMode: "cover",
-  },
-  productName: {
-    color: "#fff",
-    fontSize: 14,
-    fontWeight: "600",
-    textAlign: "center",
-  },
-  productPrice: {
-    color: "#20c997",
-    fontSize: 13,
-    marginTop: 4,
+    backgroundColor: "#1f2a23",
   },
 
-  // --- Inputs & Botões ---
+  productImage: {
+    width: "100%",
+    height: 100,
+    borderRadius: 12,
+    marginBottom: 10,
+  },
+
+  productName: {
+    color: "#fff",
+    fontSize: 15,
+    fontWeight: "600",
+  },
+
+  productPrice: {
+    color: "#20c997",
+    fontSize: 14,
+    marginTop: 2,
+  },
+
+  // --- Caixa de inputs ---
+  box: {
+    backgroundColor: "#1a1a1a",
+    padding: 14,
+    borderRadius: 14,
+    marginBottom: 20,
+    borderWidth: 1,
+    borderColor: "#222",
+  },
+
+  label: {
+    color: "#bbb",
+    fontSize: 13,
+    marginBottom: 6,
+  },
+
   input: {
     backgroundColor: "#222",
     color: "#fff",
     padding: 12,
     borderRadius: 10,
-    marginBottom: 12,
+    marginBottom: 14,
+    fontSize: 15,
   },
+
   dateBtn: {
+    backgroundColor: "#222",
     padding: 12,
-    backgroundColor: "#333",
     borderRadius: 10,
+    alignItems: "center",
+    marginBottom: 10,
+  },
+
+  dateBtnText: {
+    color: "#fff",
+    fontSize: 15,
+  },
+
+  // --- Botão salvar ---
+  saveBtn: {
+    backgroundColor: "#20c997",
+    padding: 16,
+    borderRadius: 14,
     alignItems: "center",
     marginBottom: 20,
   },
-  dateBtnText: { color: "#fff" },
-  saveBtn: {
-    backgroundColor: "#20c997",
-    padding: 14,
-    borderRadius: 12,
-    alignItems: "center",
+  saveBtnText: {
+    color: "#fff",
+    fontSize: 17,
+    fontWeight: "700",
   },
-  saveBtnText: { color: "#fff", fontWeight: "bold", fontSize: 16 },
 });
