@@ -104,52 +104,66 @@ export default function FavoritesScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#000", // fundo mais escuro
+    backgroundColor: "#000",
     padding: 16,
   },
   list: {
     paddingBottom: 20,
   },
+
+  // NOVO CARD
   card: {
     flexDirection: "row",
-    backgroundColor: "#1a1a1a", // contraste com o fundo
-    borderRadius: 14,
+    backgroundColor: "#121212", // grafite suave
+    borderRadius: 16,
     padding: 14,
-    marginBottom: 14,
+    marginBottom: 16,
     alignItems: "center",
-    shadowColor: "#00ffcc",
-    shadowOpacity: 0.2,
-    shadowOffset: { width: 0, height: 3 },
+
+    // sombra elegante
+    shadowColor: "#000",
+    shadowOpacity: 0.3,
     shadowRadius: 6,
-    elevation: 4,
+    shadowOffset: { width: 0, height: 3 },
+    elevation: 5,
+
+    // borda muito sutil
     borderWidth: 1,
-    borderColor: "#00ffcc20", // borda sutil para destaque
+    borderColor: "rgba(255,255,255,0.05)",
   },
+
   image: {
-    width: 70,
-    height: 70,
-    borderRadius: 10,
+    width: 80,
+    height: 80,
+    borderRadius: 12,
+    backgroundColor: "#1f1f1f",
   },
+
   info: {
-    marginLeft: 14,
+    marginLeft: 16,
     flex: 1,
   },
+
   name: {
     fontSize: 16,
     fontWeight: "700",
     color: "#fff",
+    marginBottom: 4,
   },
+
   price: {
-    fontSize: 14,
+    fontSize: 15,
     fontWeight: "600",
-    color: "#00ffcc", // destaque para preço sem ficar agressivo
-    marginTop: 6,
+    color: "#20c997",
+    marginTop: 2,
   },
+
   empty: {
     fontSize: 16,
-    color: "#888",
+    color: "#777",
     textAlign: "center",
     marginTop: 50,
   },
 });
+
 

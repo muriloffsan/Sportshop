@@ -19,7 +19,8 @@ export default function HomeScreen({ navigation }) {
   const [categories, setCategories] = useState([]);
   const [category, setCategory] = useState(null);
   const [isAdmin, setIsAdmin] = useState(false);
-  const [promotions, setPromotions] = useState([]);
+  const [promotions, setPromotions] = useState(null);
+
 
   // ---------------------
   // FETCH PRODUCTS
@@ -53,11 +54,21 @@ useEffect(() => {
   const fetchPromotions = async () => {
     const now = new Date().toISOString();
     const { data, error } = await supabase
-      .from("promotions")
-      .select("*")
-      .eq("is_active", true)
-      .lte("start_date", now)
-      .or(`end_date.is.null,end_date.gte.${now}`);
+    .from("promotions")
+    .select(`
+      id,
+      discount,
+      end_date,
+      products (
+        id,
+        name,
+        price,
+        image_url
+      )
+    `)
+    .eq("is_active", true)
+    .lte("start_date", now)
+    .or(`end_date.is.null,end_date.gte.${now}`);
 
     if (error) {
       console.log("Erro ao buscar promoções:", error);
@@ -65,6 +76,9 @@ useEffect(() => {
     }
 
     setPromotions(data || []);
+    const randomPromo = data?.length ? data[Math.floor(Math.random() * data.length)] : null;
+    setPromotions(randomPromo);
+
   };
 
   fetchPromotions();
@@ -249,27 +263,51 @@ useEffect(() => {
             </View>
           </View>
 
-          {/* Banner 3 - Promoção */}
-          <View style={[styles.banner, { backgroundColor: "#000" }]}>
-            <Image
-              source={require("../../assets/camisa.png")}
-              style={styles.bannerProduct}
-            />
-            <View style={styles.bannerRight}>
-              <Text style={styles.bannerTitle}>Super Promoção 💥</Text>
-              <Text style={styles.bannerText}>
-                Descontos de{" "}
-                <Text style={{ color: "#00bf63", fontWeight: "bold" }}>
-                  até 50%
-                </Text>{" "}
-                válidos até{" "}
-                <Text style={{ color: "#00bf63", fontWeight: "bold" }}>
-                  12/10
+          {/* Banner 3 - Promoção Dinâmica */}
+          <View style={[styles.banner, { backgroundColor: "#fff" }]}>
+            {promotions?.products ? (
+              <>
+                {/* Imagem do produto em promoção */}
+                <Image
+                  source={{ uri: promotions.products.image_url }}
+                  style={styles.bannerProduct}
+                />
+
+                <View style={styles.bannerRight}>
+                  <Text style={[styles.bannerTitle, { color: "#000" }]}>
+                    💥 Oferta Especial
+                  </Text>
+
+                  <Text style={[styles.bannerText, { color: "#000" }]}>
+                    {promotions.discount}% OFF até{" "}
+                    <Text style={{ color: "#00bf63", fontWeight: "bold" }}>
+                      {new Date(promotions.end_date).toLocaleDateString("pt-BR")}
+                    </Text>
+                  </Text>
+
+                  <Text style={[styles.bannerText, { marginTop: 4, color: "#000" }]}>
+                    Produto:{" "}
+                    <Text style={{ fontWeight: "bold", color: "#000" }}>
+                      {promotions.products.name}
+                    </Text>
+                  </Text>
+                </View>
+              </>
+            ) : (
+              // fallback caso não tenha promoções ativas
+              <View style={{ flex: 1, alignItems: "center" }}>
+                <Text style={[styles.bannerTitle, { color: "#000" }]}>
+                  Nenhuma Promoção Ativa
                 </Text>
-                !
-              </Text>
-            </View>
+                <Text style={[styles.bannerText, { color: "#000" }]}>
+                  Volte mais tarde para ver as melhores ofertas!
+                </Text>
+              </View>
+            )}
           </View>
+
+
+
         </ScrollView>
       )}
 
