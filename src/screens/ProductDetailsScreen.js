@@ -13,7 +13,7 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { supabase } from "../lib/supabase";
-
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function ProductDetailsScreen({ route, navigation }) {
   const { product } = route.params;
@@ -224,51 +224,52 @@ const handleToggleFavorite = async () => {
 
 
 
- return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+return (
+  <SafeAreaView style={{ flex: 1, backgroundColor: "#111" }}>
+    <ScrollView
+      style={styles.container}
+      contentContainerStyle={{ paddingBottom: 40 }}
+      showsVerticalScrollIndicator={false}
+    >
       {/* Container dos botões */}
-    <View style={styles.topBar}>
-      {/* Botão de voltar */}
-      <TouchableOpacity
-        style={styles.backBtn}
-        onPress={() => navigation.goBack()}
-      >
-        <Ionicons name="arrow-back" size={24} color="#fff" />
-        <Text style={styles.backText}>Voltar</Text>
-      </TouchableOpacity>
+      <View style={styles.topBar}>
+        <TouchableOpacity
+          style={styles.backBtn}
+          onPress={() => navigation.goBack()}
+        >
+          <Ionicons name="arrow-back" size={24} color="#fff" />
+          <Text style={styles.backText}>Voltar</Text>
+        </TouchableOpacity>
 
-      {/* Botão de favorito (ainda vai pra Home por enquanto) */}
-      <TouchableOpacity
-  style={styles.favoriteBtn}
-  onPress={handleToggleFavorite}
->
-  <Ionicons
-    name={isFavorite ? "heart" : "heart-outline"}
-    size={24}
-    color="#fff"
-  />
-</TouchableOpacity>
+        <TouchableOpacity
+          style={styles.favoriteBtn}
+          onPress={handleToggleFavorite}
+        >
+          <Ionicons
+            name={isFavorite ? "heart" : "heart-outline"}
+            size={24}
+            color="#fff"
+          />
+        </TouchableOpacity>
+      </View>
 
-    </View>
+      <Image source={{ uri: product.image_url }} style={styles.image} />
+      <Text style={styles.name}>{product.name}</Text>
 
-    <Image source={{ uri: product.image_url }} style={styles.image} />
-    <Text style={styles.name}>{product.name}</Text>
+      {isOnPromotion(product) ? (
+        <View style={styles.priceRow}>
+          <Text style={styles.oldPrice}>R$ {product.price.toFixed(2)}</Text>
+          <Text style={styles.discountPrice}>
+            R$ {getFinalPrice(product).toFixed(2)}
+          </Text>
+          <Text style={styles.discountBadge}>-{product.discount}%</Text>
+        </View>
+      ) : (
+        <Text style={styles.price}>R$ {product.price.toFixed(2)}</Text>
+      )}
 
-{isOnPromotion(product) ? (
-  <View style={styles.priceRow}>
-    <Text style={styles.oldPrice}>R$ {product.price.toFixed(2)}</Text>
-    <Text style={styles.discountPrice}>
-      R$ {getFinalPrice(product).toFixed(2)}
-    </Text>
-    <Text style={styles.discountBadge}>-{product.discount}%</Text>
-  </View>
-) : (
-  <Text style={styles.price}>R$ {product.price.toFixed(2)}</Text>
-)}
+      <Text style={styles.description}>{product.description}</Text>
 
-<Text style={styles.description}>{product.description}</Text>
-
-      {/* Média de avaliações */}
       {avgRating ? (
         <View style={styles.avgContainer}>
           {renderStars(Math.round(avgRating))}
@@ -286,7 +287,6 @@ const handleToggleFavorite = async () => {
         <Text style={styles.buttonText}>Adicionar ao Carrinho</Text>
       </TouchableOpacity>
 
-      {/* Avaliações */}
       <Text style={styles.sectionTitle}>Avaliações</Text>
       <FlatList
         data={reviews}
@@ -295,13 +295,12 @@ const handleToggleFavorite = async () => {
         ListEmptyComponent={
           <Text style={{ color: "#aaa" }}>Ainda não há avaliações.</Text>
         }
-        scrollEnabled={false} // evita conflito de scroll dentro do ScrollView
+        scrollEnabled={false}
       />
 
-      {/* Formulário para enviar avaliação */}
       <View style={styles.reviewForm}>
         <Text style={styles.sectionTitle}>Deixe sua avaliação</Text>
-        {/* Estrelas clicáveis */}
+
         <View style={styles.starInput}>
           {Array.from({ length: 5 }, (_, i) => (
             <TouchableOpacity key={i} onPress={() => setRating(i + 1)}>
@@ -313,6 +312,7 @@ const handleToggleFavorite = async () => {
             </TouchableOpacity>
           ))}
         </View>
+
         <TextInput
           style={styles.input}
           placeholder="Escreva seu comentário"
@@ -320,12 +320,15 @@ const handleToggleFavorite = async () => {
           onChangeText={setComment}
           placeholderTextColor="#aaa"
         />
+
         <TouchableOpacity style={styles.button} onPress={handleAddReview}>
           <Text style={styles.buttonText}>Enviar Avaliação</Text>
         </TouchableOpacity>
       </View>
     </ScrollView>
-  );
+  </SafeAreaView>
+);
+
 }
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 16, backgroundColor: "#111" },

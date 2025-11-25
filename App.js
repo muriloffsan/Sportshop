@@ -126,7 +126,7 @@ export default function App() {
               name="ProductDetails"
               component={ProductDetailsScreen}
               options={{
-                headerShown: true,
+                headerShown: false,
                 headerTitle: 'Detalhes do Produto',
                 headerTitleStyle: styles.headerTitle,
                 headerLeft: () => <BackButton />,
