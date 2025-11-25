@@ -244,7 +244,6 @@ useEffect(() => {
               </Text>
             </View>
           </View>
-
           {/* Banner 2 - Mais vendido */}
           <View style={[styles.banner, { backgroundColor: "#000" }]}>
             <Image
@@ -315,6 +314,15 @@ useEffect(() => {
       <Text style={styles.title}>
         {category ? `Produtos de ${category}` : "Todos os Produtos"}
       </Text>
+      {/* CUPON */}
+      {isAdmin && (
+        <TouchableOpacity
+            style={styles.adminBtn}
+            onPress={() => navigation.navigate("CouponAdmin")}
+          >
+            <Text style={styles.adminBtnText}>+ Gerenciar Cupons</Text>
+          </TouchableOpacity>
+        )}
 
       {/* Admin */}
       {isAdmin && (

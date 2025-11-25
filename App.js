@@ -7,7 +7,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { supabase } from './src/lib/supabase';
-
+import CouponAdmin from "./src/screens/CouponAdmin";
 import LoginScreen from './src/screens/LoginScreen';
 import SignUpScreen from './src/screens/CadastroScreens';
 import HomeScreen from './src/screens/HomeScreen';
@@ -139,6 +139,17 @@ export default function App() {
               options={{
                 headerShown: true,
                 headerTitle: 'Área do Entregador',
+                headerTitleStyle: styles.headerTitle,
+                headerLeft: () => <BackButton />,
+              }}
+            />
+
+            <Stack.Screen
+              name="CouponAdmin"
+              component={CouponAdmin}
+              options={{
+                headerShown: true,
+                headerTitle: 'CouponAdmin',
                 headerTitleStyle: styles.headerTitle,
                 headerLeft: () => <BackButton />,
               }}
