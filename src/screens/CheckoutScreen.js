@@ -7,6 +7,7 @@ export default function CheckoutScreen({ navigation }) {
   const [total, setTotal] = useState(0);
   const [coupon, setCoupon] = useState("");
   const [discount, setDiscount] = useState(0);
+  const [appliedCoupon, setAppliedCoupon] = useState(null);
 
   useEffect(() => {
     fetchCart();
@@ -34,11 +35,11 @@ export default function CheckoutScreen({ navigation }) {
     }
 
     setCartItems(data || []);
-    calcTotal(data || []);
+    calcTotal(data || [], 0);
   };
 
   // ---------------------
-  // CALC TOTAL COM PROMO
+  // CALC TOTAL COM PROMO E CUPOM
   // ---------------------
   const getFinalPrice = (product) => {
     const now = new Date();
@@ -48,35 +49,65 @@ export default function CheckoutScreen({ navigation }) {
     return product.price;
   };
 
-  const calcTotal = (items, appliedDiscount = discount) => {
+  const calcTotal = (items, appliedDiscount = 0) => {
     const sum = items.reduce((acc, item) => acc + item.quantity * getFinalPrice(item.products), 0);
     const finalValue = sum * (1 - appliedDiscount / 100);
     setTotal(finalValue);
   };
 
   // ---------------------
-  // CUPOM DE DESCONTO
+  // APLICAR CUPOM SUPABASE
   // ---------------------
-  const handleApplyCoupon = () => {
-    const code = coupon.trim().toUpperCase();
+  const handleApplyCoupon = async () => {
+  const code = coupon.trim().toUpperCase();
+  if (!code) {
+    Alert.alert("Aviso", "Digite um código de cupom válido.");
+    return;
+  }
 
-    if (code === "DESCONTO10") {
-      setDiscount(10);
-      calcTotal(cartItems, 10);
-      Alert.alert("Cupom aplicado!", "Você ganhou 10% de desconto 🎉");
-    } else if (code === "FRETEGRATIS") {
-      setDiscount(5);
-      calcTotal(cartItems, 5);
-      Alert.alert("Cupom aplicado!", "5% de desconto equivalente ao frete grátis!");
-    } else if (code === "") {
-      Alert.alert("Aviso", "Digite um código de cupom válido.");
-    } else {
+  try {
+    // Busca o cupom pelo código e ativo
+    const { data, error } = await supabase
+      .from("coupons")
+      .select("*")
+      .eq("code", code)
+      .eq("is_active", true)
+      .limit(1)
+      .single();
+
+    if (error || !data) {
       Alert.alert("Cupom inválido", "Esse código não existe ou expirou.");
+      return;
     }
-  };
+
+    const now = new Date();
+
+    if (data.end_date && new Date(data.end_date) < now) {
+      Alert.alert("Cupom expirado", "Este cupom já expirou.");
+      return;
+    }
+
+    if (data.used_count >= data.usage_limit) {
+      Alert.alert("Cupom esgotado", "Este cupom já atingiu o limite de uso.");
+      return;
+    }
+
+    // Aplica desconto
+    setDiscount(data.discount);
+    setAppliedCoupon(data);
+    calcTotal(cartItems, data.discount);
+
+    Alert.alert("Sucesso!", `Cupom "${data.code}" aplicado com ${data.discount}% de desconto!`);
+
+  } catch (err) {
+    console.error(err);
+    Alert.alert("Erro", "Ocorreu um problema ao aplicar o cupom.");
+  }
+};
+
 
   // ---------------------
-  // CONFIRM ORDER
+  // CONFIRMAR PEDIDO
   // ---------------------
   const handleConfirmOrder = async () => {
     const { data: { user } } = await supabase.auth.getUser();
@@ -122,10 +153,19 @@ export default function CheckoutScreen({ navigation }) {
         return;
       }
 
+      // Atualiza contador de uso do cupom
+      if (appliedCoupon) {
+        await supabase
+          .from("coupons")
+          .update({ used_count: appliedCoupon.used_count + 1 })
+          .eq("id", appliedCoupon.id);
+      }
+
       await supabase.from("cart").delete().eq("user_id", user.id);
 
       Alert.alert("Sucesso", "Pedido confirmado com sucesso!");
       navigation.replace("Home");
+
     } catch (err) {
       console.error(err);
       Alert.alert("Erro", "Ocorreu um problema ao processar o pedido.");
@@ -137,9 +177,7 @@ export default function CheckoutScreen({ navigation }) {
   // ---------------------
   const renderItem = ({ item }) => (
     <View style={styles.item}>
-      <Text style={styles.name}>
-        {item.products.name} (x{item.quantity})
-      </Text>
+      <Text style={styles.name}>{item.products.name} (x{item.quantity})</Text>
       <Text style={styles.price}>
         R$ {(getFinalPrice(item.products) * item.quantity).toFixed(2)}
       </Text>
@@ -151,7 +189,7 @@ export default function CheckoutScreen({ navigation }) {
   // ---------------------
   return (
     <View style={styles.container}>
-      <Text style={styles.title}> Resumo da Compra</Text>
+      <Text style={styles.title}>Resumo da Compra</Text>
 
       <FlatList
         data={cartItems}
@@ -184,7 +222,7 @@ export default function CheckoutScreen({ navigation }) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 16, backgroundColor: "#000" },
-  title: { fontSize: 24, fontWeight: "bold", color: "#fff", textAlign: "center", marginBottom: 20 },
+  title: { fontSize: 24, fontWeight: "bold", color: "#4CAF50", textAlign: "center", marginBottom: 20 },
   item: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -196,8 +234,8 @@ const styles = StyleSheet.create({
     borderColor: "#222",
   },
   name: { fontSize: 16, fontWeight: "500", color: "#fff" },
-  price: { fontSize: 16, fontWeight: "bold", color: "#00ffcc" },
-  total: { fontSize: 18, fontWeight: "bold", color: "#00ffcc", marginVertical: 20, textAlign: "right" },
+  price: { fontSize: 16, fontWeight: "bold", color: "#4CAF50" },
+  total: { fontSize: 18, fontWeight: "bold", color: "#4CAF50", marginVertical: 20, textAlign: "right" },
   couponRow: { flexDirection: "row", alignItems: "center", marginBottom: 20 },
   couponInput: {
     flex: 1,
@@ -210,18 +248,18 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   couponBtn: {
-    backgroundColor: "#00ffcc",
+    backgroundColor: "#4CAF50",
     paddingVertical: 12,
     paddingHorizontal: 18,
     borderRadius: 8,
   },
   couponBtnText: { color: "#000", fontWeight: "bold", fontSize: 14 },
   btn: {
-    backgroundColor: "#00ffcc",
+    backgroundColor: "#4CAF50",
     padding: 16,
     borderRadius: 10,
     alignItems: "center",
-    shadowColor: "#00ffcc",
+    shadowColor: "#4CAF50",
     shadowOpacity: 0.4,
     shadowOffset: { width: 0, height: 3 },
     shadowRadius: 6,
